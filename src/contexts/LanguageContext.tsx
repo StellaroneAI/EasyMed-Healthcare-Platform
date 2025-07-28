@@ -34,11 +34,13 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
       if (typeof fallbackValue === 'string') {
         return fallbackValue;
       }
-      // If key doesn't exist, return the key itself as fallback
-      return key as string;
+      // If key doesn't exist, return a placeholder or the key itself
+      console.warn(`Missing translation for key: ${key} in language: ${currentLanguage}`);
+      return `[${key}]`; // Show missing translation clearly
     } catch (error) {
       // In case of any error, return the key itself
-      return key as string;
+      console.error(`Translation error for key: ${key}`, error);
+      return `[${key}]`;
     }
   };
 

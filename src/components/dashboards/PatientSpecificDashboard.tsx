@@ -1,4 +1,7 @@
 import { useLanguage } from '../../contexts/LanguageContext';
+import SimpleVoiceAssistant from '../SimpleVoiceAssistant';
+import LanguageSelector from '../LanguageSelector';
+import LanguageDebugger from '../LanguageDebugger';
 
 interface PatientSpecificDashboardProps {
   user: {
@@ -12,6 +15,14 @@ export default function PatientSpecificDashboard({ user }: PatientSpecificDashbo
 
   return (
     <div className="space-y-6">
+      {/* Language Debug Panel */}
+      <LanguageDebugger />
+      
+      {/* Language Selector */}
+      <div className="flex justify-end">
+        <LanguageSelector />
+      </div>
+
       {/* Patient Welcome Section */}
       <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-6 rounded-2xl">
         <h2 className="text-2xl font-bold">{t('welcomeBack')}, {user.name}</h2>
@@ -102,9 +113,20 @@ export default function PatientSpecificDashboard({ user }: PatientSpecificDashbo
         <div className="space-y-3">
           <p className="text-gray-700">{t('goodMorning')}</p>
           <p className="text-gray-600">{t('vitalsGreat')}</p>
-          <p className="text-blue-600">💊 {t('medicationReminder')}</p>
+          <p className="text-blue-600">💊 {t('medications')}</p>
           <p className="text-green-600">⏰ {t('nextCheckup')}</p>
         </div>
+      </div>
+
+      {/* AI Voice Assistant */}
+      <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+        <SimpleVoiceAssistant 
+          userName={user.name}
+          onCommand={(command) => {
+            console.log('Voice command:', command);
+            // Handle navigation based on voice commands
+          }}
+        />
       </div>
     </div>
   );

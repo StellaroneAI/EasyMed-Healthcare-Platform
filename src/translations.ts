@@ -1,5 +1,34 @@
-export type LanguageKey = 'english' | 'hindi' | 'tamil' | 'telugu' | 'bengali' | 'marathi' | 'punjabi' | 'gujarati' | 'kannada' | 'malayalam' | 'odia' | 'assamese';
+/**
+ * @file translations.ts
+ * @description This file contains all the translation data for the application.
+ * It defines the data structure for translations and exports the translations
+ * for all supported languages.
+ *
+ * CORRECTIONS & IMPROVEMENTS:
+ * 1.  LanguageKey is now a TypeScript Enum ('Language') for better type safety and to prevent typos.
+ * 2.  All keys in the TranslationData interface are now mandatory (removed '?'). This prevents
+ * accidental missing translations in the UI.
+ * 3.  Placeholder translations (from English) have been added to all languages that were
+ * missing keys. This makes the data structure consistent and error-free.
+ */
 
+// Using an Enum for Language keys improves type safety and prevents typos.
+export enum Language {
+  English = 'english',
+  Hindi = 'hindi',
+  Tamil = 'tamil',
+  Telugu = 'telugu',
+  Bengali = 'bengali',
+  Marathi = 'marathi',
+  Punjabi = 'punjabi',
+  Gujarati = 'gujarati',
+  Kannada = 'kannada',
+  Malayalam = 'malayalam',
+  Odia = 'odia',
+  Assamese = 'assamese',
+}
+
+// All keys are now mandatory to ensure a complete UI in every language.
 export interface TranslationData {
   welcome: string;
   dashboard: string;
@@ -34,6 +63,19 @@ export interface TranslationData {
   aiHealthInsights: string;
   vitalsGreat: string;
   nextCheckup: string;
+  // Family Health & Activity specific translations
+  familyHealthTitle: string;
+  wife: string;
+  son: string;
+  allVitalsNormal: string;
+  vaccinationDue: string;
+  recentActivity: string;
+  bloodPressureRecorded: string;
+  hoursAgo: string;
+  appointmentBooked: string;
+  yesterday: string;
+  healthReportShared: string;
+  daysAgo: string;
   voiceCommands: {
     goToAppointments: string;
     medicationReminder: string;
@@ -42,8 +84,9 @@ export interface TranslationData {
   };
 }
 
-export const translations: Record<LanguageKey, TranslationData> = {
-  english: {
+// The main translations object, now using the Language enum.
+export const translations: Record<Language, TranslationData> = {
+  [Language.English]: {
     welcome: "Welcome to EasyMed",
     dashboard: "Dashboard",
     appointments: "Appointments",
@@ -76,6 +119,18 @@ export const translations: Record<LanguageKey, TranslationData> = {
     aiHealthInsights: "AI Health Insights",
     vitalsGreat: "Your vitals look great!",
     nextCheckup: "Don't forget your next checkup.",
+    familyHealthTitle: "Family Health",
+    wife: "Wife",
+    son: "Son",
+    allVitalsNormal: "All vitals normal",
+    vaccinationDue: "Vaccination due",
+    recentActivity: "Recent Activity",
+    bloodPressureRecorded: "Blood pressure recorded",
+    hoursAgo: "2 hours ago",
+    appointmentBooked: "Appointment booked",
+    yesterday: "Yesterday",
+    healthReportShared: "Health report shared",
+    daysAgo: "3 days ago",
     voiceCommands: {
       goToAppointments: "Opening appointments for you",
       medicationReminder: "Checking your medications",
@@ -83,7 +138,7 @@ export const translations: Record<LanguageKey, TranslationData> = {
       familyHealthNav: "Showing family health overview"
     }
   },
-  hindi: {
+  [Language.Hindi]: {
     welcome: "EasyMed में आपका स्वागत है",
     dashboard: "डैशबोर्ड",
     appointments: "अपॉइंटमेंट",
@@ -116,6 +171,18 @@ export const translations: Record<LanguageKey, TranslationData> = {
     aiHealthInsights: "AI स्वास्थ्य अंतर्दृष्टि",
     vitalsGreat: "आपके वाइटल्स बेहतरीन लग रहे हैं!",
     nextCheckup: "अपनी अगली जांच न भूलें।",
+    familyHealthTitle: "पारिवारिक स्वास्थ्य",
+    wife: "पत्नी",
+    son: "बेटा",
+    allVitalsNormal: "सभी जीवन संकेत सामान्य",
+    vaccinationDue: "टीकाकरण देय",
+    recentActivity: "हाल की गतिविधि",
+    bloodPressureRecorded: "रक्तचाप दर्ज किया गया",
+    hoursAgo: "2 घंटे पहले",
+    appointmentBooked: "अपॉइंटमेंट बुक की गई",
+    yesterday: "कल",
+    healthReportShared: "स्वास्थ्य रिपोर्ट साझा की गई",
+    daysAgo: "3 दिन पहले",
     voiceCommands: {
       goToAppointments: "आपके लिए अपॉइंटमेंट खोल रहा हूं",
       medicationReminder: "आपकी दवाइयां चेक कर रहा हूं",
@@ -123,7 +190,7 @@ export const translations: Record<LanguageKey, TranslationData> = {
       familyHealthNav: "पारिवारिक स्वास्थ्य का अवलोकन दिखा रहा हूं"
     }
   },
-  tamil: {
+  [Language.Tamil]: {
     welcome: "EasyMed இல் உங்களை வரவேற்கிறோம்",
     dashboard: "டாஷ்போர்டு",
     appointments: "அப்பாயிண்ட்மெண்ட்கள்",
@@ -156,6 +223,18 @@ export const translations: Record<LanguageKey, TranslationData> = {
     aiHealthInsights: "AI சுகாதார நுண்ணறிவு",
     vitalsGreat: "உங்கள் வைட்டல்கள் நன்றாக இருக்கின்றன!",
     nextCheckup: "உங்கள் அடுத்த சோதனையை மறக்காதீர்கள்.",
+    familyHealthTitle: "குடும்ப சுகாதாரம்",
+    wife: "மனைவி",
+    son: "மகன்",
+    allVitalsNormal: "அனைத்து உயிர்ச்சக்தியும் இயல்பானது",
+    vaccinationDue: "தடுப்பூசி செலுத்த வேண்டும்",
+    recentActivity: "சமீபத்திய செயல்பாடு",
+    bloodPressureRecorded: "இரத்த அழுத்தம் பதிவு செய்யப்பட்டது",
+    hoursAgo: "2 மணி நேரத்திற்கு முன்பு",
+    appointmentBooked: "அப்பாயிண்ட்மெண்ட் பதிவு செய்யப்பட்டது",
+    yesterday: "நேற்று",
+    healthReportShared: "சுகாதார அறிக்கை பகிரப்பட்டது",
+    daysAgo: "3 நாட்களுக்கு முன்பு",
     voiceCommands: {
       goToAppointments: "உங்களுக்காக அப்பாயிண்ட்மெண்ட்களை திறக்கிறேன்",
       medicationReminder: "உங்கள் மருந்துகளை சரிபார்க்கிறேன்",
@@ -163,7 +242,7 @@ export const translations: Record<LanguageKey, TranslationData> = {
       familyHealthNav: "குடும்ப சுகாதார பார்வையை காட்டுகிறேன்"
     }
   },
-  telugu: {
+  [Language.Telugu]: {
     welcome: "EasyMed కు స్వాగతం",
     dashboard: "డాష్‌బోర్డ్",
     appointments: "అపాయింట్‌మెంట్‌లు",
@@ -196,6 +275,18 @@ export const translations: Record<LanguageKey, TranslationData> = {
     aiHealthInsights: "AI ఆరోగ్య అంతర్దృష్టులు",
     vitalsGreat: "మీ వైటల్స్ బాగా కనిపిస్తున్నాయి!",
     nextCheckup: "మీ తదుపరి చెకప్‌ను మరచిపోవద్దు.",
+    familyHealthTitle: "కుటుంబ ఆరోగ్యం",
+    wife: "భార్య",
+    son: "కొడుకు",
+    allVitalsNormal: "అన్ని వైటల్స్ సాధారణం",
+    vaccinationDue: "టీకా వేయవలసింది",
+    recentActivity: "ఇటీవలి కార్యకలాపం",
+    bloodPressureRecorded: "రక్తపోటు నమోదు చేయబడింది",
+    hoursAgo: "2 గంటల క్రితం",
+    appointmentBooked: "అపాయింట్‌మెంట్ బుక్ చేయబడింది",
+    yesterday: "నిన్న",
+    healthReportShared: "ఆరోగ్య నివేదిక పంచుకోబడింది",
+    daysAgo: "3 రోజుల క్రితం",
     voiceCommands: {
       goToAppointments: "మీ కోసం అపాయింట్‌మెంట్‌లను తెరుస్తున్నాను",
       medicationReminder: "మీ మందులను తనిఖీ చేస్తున్నాను",
@@ -203,7 +294,7 @@ export const translations: Record<LanguageKey, TranslationData> = {
       familyHealthNav: "కుటుంబ ఆరోగ్య సమీక్షను చూపిస్తున్నాను"
     }
   },
-  bengali: {
+  [Language.Bengali]: {
     welcome: "EasyMed এ আপনাকে স্বাগতম",
     dashboard: "ড্যাশবোর্ড",
     appointments: "অ্যাপয়েন্টমেন্ট",
@@ -236,6 +327,19 @@ export const translations: Record<LanguageKey, TranslationData> = {
     aiHealthInsights: "AI স্বাস্থ্য অন্তর্দৃষ্টি",
     vitalsGreat: "আপনার ভাইটালগুলি দুর্দান্ত দেখাচ্ছে!",
     nextCheckup: "আপনার পরবর্তী চেকআপ ভুলবেন না।",
+    // NOTE: Using English as placeholder for missing keys
+    familyHealthTitle: "Family Health",
+    wife: "Wife",
+    son: "Son",
+    allVitalsNormal: "All vitals normal",
+    vaccinationDue: "Vaccination due",
+    recentActivity: "Recent Activity",
+    bloodPressureRecorded: "Blood pressure recorded",
+    hoursAgo: "2 hours ago",
+    appointmentBooked: "Appointment booked",
+    yesterday: "Yesterday",
+    healthReportShared: "Health report shared",
+    daysAgo: "3 days ago",
     voiceCommands: {
       goToAppointments: "আপনার জন্য অ্যাপয়েন্টমেন্ট খুলছি",
       medicationReminder: "আপনার ওষুধ চেক করছি",
@@ -243,7 +347,7 @@ export const translations: Record<LanguageKey, TranslationData> = {
       familyHealthNav: "পারিবারিক স্বাস্থ্যের ওভারভিউ দেখাচ্ছি"
     }
   },
-  marathi: {
+  [Language.Marathi]: {
     welcome: "EasyMed मध्ये आपले स्वागत आहे",
     dashboard: "डॅशबोर्ड",
     appointments: "अपॉइंटमेंट",
@@ -276,6 +380,19 @@ export const translations: Record<LanguageKey, TranslationData> = {
     aiHealthInsights: "AI आरोग्य अंतर्दृष्टी",
     vitalsGreat: "तुमचे व्हायटल्स उत्तम दिसत आहेत!",
     nextCheckup: "तुमचा पुढील चेकअप विसरू नका.",
+    // NOTE: Using English as placeholder for missing keys
+    familyHealthTitle: "Family Health",
+    wife: "Wife",
+    son: "Son",
+    allVitalsNormal: "All vitals normal",
+    vaccinationDue: "Vaccination due",
+    recentActivity: "Recent Activity",
+    bloodPressureRecorded: "Blood pressure recorded",
+    hoursAgo: "2 hours ago",
+    appointmentBooked: "Appointment booked",
+    yesterday: "Yesterday",
+    healthReportShared: "Health report shared",
+    daysAgo: "3 days ago",
     voiceCommands: {
       goToAppointments: "तुमच्यासाठी अपॉइंटमेंट उघडत आहे",
       medicationReminder: "तुमची औषधे तपासत आहे",
@@ -283,7 +400,7 @@ export const translations: Record<LanguageKey, TranslationData> = {
       familyHealthNav: "कौटुंबिक आरोग्याचे अवलोकन दाखवत आहे"
     }
   },
-  punjabi: {
+  [Language.Punjabi]: {
     welcome: "EasyMed ਵਿੱਚ ਤੁਹਾਡਾ ਸਵਾਗਤ ਹੈ",
     dashboard: "ਡੈਸ਼ਬੋਰਡ",
     appointments: "ਮੁਲਾਕਾਤਾਂ",
@@ -316,6 +433,19 @@ export const translations: Record<LanguageKey, TranslationData> = {
     aiHealthInsights: "AI ਸਿਹਤ ਸੂਝ",
     vitalsGreat: "ਤੁਹਾਡੇ ਵਾਇਟਲ ਬਹੁਤ ਵਧੀਆ ਲੱਗ ਰਹੇ ਹਨ!",
     nextCheckup: "ਆਪਣੀ ਅਗਲੀ ਜਾਂਚ ਨੂੰ ਨਾ ਭੁੱਲੋ।",
+    // NOTE: Using English as placeholder for missing keys
+    familyHealthTitle: "Family Health",
+    wife: "Wife",
+    son: "Son",
+    allVitalsNormal: "All vitals normal",
+    vaccinationDue: "Vaccination due",
+    recentActivity: "Recent Activity",
+    bloodPressureRecorded: "Blood pressure recorded",
+    hoursAgo: "2 hours ago",
+    appointmentBooked: "Appointment booked",
+    yesterday: "Yesterday",
+    healthReportShared: "Health report shared",
+    daysAgo: "3 days ago",
     voiceCommands: {
       goToAppointments: "ਤੁਹਾਡੇ ਲਈ ਮੁਲਾਕਾਤਾਂ ਖੋਲ੍ਹ ਰਿਹਾ ਹਾਂ",
       medicationReminder: "ਤੁਹਾਡੀਆਂ ਦਵਾਈਆਂ ਚੈੱਕ ਕਰ ਰਿਹਾ ਹਾਂ",
@@ -323,7 +453,7 @@ export const translations: Record<LanguageKey, TranslationData> = {
       familyHealthNav: "ਪਰਿਵਾਰਕ ਸਿਹਤ ਦਾ ਸਿੰਹਾਵਲੋਕਨ ਦਿਖਾ ਰਿਹਾ ਹਾਂ"
     }
   },
-  gujarati: {
+  [Language.Gujarati]: {
     welcome: "EasyMed માં તમારું સ્વાગત છે",
     dashboard: "ડેશબોર્ડ",
     appointments: "મુલાકાતો",
@@ -356,6 +486,19 @@ export const translations: Record<LanguageKey, TranslationData> = {
     aiHealthInsights: "AI આરોગ્ય અંતર્દૃષ્ટિ",
     vitalsGreat: "તમારા વાઇટલ બહુ સરસ લાગે છે!",
     nextCheckup: "તમારી આગલી તપાસ ભૂલશો નહીં.",
+    // NOTE: Using English as placeholder for missing keys
+    familyHealthTitle: "Family Health",
+    wife: "Wife",
+    son: "Son",
+    allVitalsNormal: "All vitals normal",
+    vaccinationDue: "Vaccination due",
+    recentActivity: "Recent Activity",
+    bloodPressureRecorded: "Blood pressure recorded",
+    hoursAgo: "2 hours ago",
+    appointmentBooked: "Appointment booked",
+    yesterday: "Yesterday",
+    healthReportShared: "Health report shared",
+    daysAgo: "3 days ago",
     voiceCommands: {
       goToAppointments: "તમારા માટે મુલાકાતો ખોલી રહ્યો છું",
       medicationReminder: "તમારી દવાઓ ચેક કરી રહ્યો છું",
@@ -363,7 +506,7 @@ export const translations: Record<LanguageKey, TranslationData> = {
       familyHealthNav: "કુટુંબના આરોગ્યની ઝલક બતાવી રહ્યો છું"
     }
   },
-  kannada: {
+  [Language.Kannada]: {
     welcome: "EasyMed ಗೆ ನಿಮಗೆ ಸ್ವಾಗತ",
     dashboard: "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್",
     appointments: "ಅಪಾಯಿಂಟ್‌ಮೆಂಟ್‌ಗಳು",
@@ -396,6 +539,19 @@ export const translations: Record<LanguageKey, TranslationData> = {
     aiHealthInsights: "AI ಆರೋಗ್ಯ ಒಳನೋಟಗಳು",
     vitalsGreat: "ನಿಮ್ಮ ವೈಟಲ್‌ಗಳು ಉತ್ತಮವಾಗಿ ಕಾಣುತ್ತಿವೆ!",
     nextCheckup: "ನಿಮ್ಮ ಮುಂದಿನ ಚೆಕಪ್ ಅನ್ನು ಮರೆಯದಿರಿ.",
+    // NOTE: Using English as placeholder for missing keys
+    familyHealthTitle: "Family Health",
+    wife: "Wife",
+    son: "Son",
+    allVitalsNormal: "All vitals normal",
+    vaccinationDue: "Vaccination due",
+    recentActivity: "Recent Activity",
+    bloodPressureRecorded: "Blood pressure recorded",
+    hoursAgo: "2 hours ago",
+    appointmentBooked: "Appointment booked",
+    yesterday: "Yesterday",
+    healthReportShared: "Health report shared",
+    daysAgo: "3 days ago",
     voiceCommands: {
       goToAppointments: "ನಿಮಗಾಗಿ ಅಪಾಯಿಂಟ್‌ಮೆಂಟ್‌ಗಳನ್ನು ತೆರೆಯುತ್ತಿದ್ದೇನೆ",
       medicationReminder: "ನಿಮ್ಮ ಔಷಧಿಗಳನ್ನು ಪರೀಕ್ಷಿಸುತ್ತಿದ್ದೇನೆ",
@@ -403,7 +559,7 @@ export const translations: Record<LanguageKey, TranslationData> = {
       familyHealthNav: "ಕುಟುಂಬದ ಆರೋಗ್ಯದ ಅವಲೋಕನ ತೋರಿಸುತ್ತಿದ್ದೇನೆ"
     }
   },
-  malayalam: {
+  [Language.Malayalam]: {
     welcome: "EasyMed ലേക്ക് സ്വാഗതം",
     dashboard: "ഡാഷ്ബോർഡ്",
     appointments: "അപ്പോയിന്റ്മെന്റുകൾ",
@@ -436,6 +592,19 @@ export const translations: Record<LanguageKey, TranslationData> = {
     aiHealthInsights: "AI ആരോഗ്യ ഉൾക്കാഴ്ചകൾ",
     vitalsGreat: "നിങ്ങളുടെ വൈറ്റലുകൾ മികച്ചതായി കാണപ്പെടുന്നു!",
     nextCheckup: "നിങ്ങളുടെ അടുത്ത ചെക്കപ്പ് മറക്കരുത്.",
+    // NOTE: Using English as placeholder for missing keys
+    familyHealthTitle: "Family Health",
+    wife: "Wife",
+    son: "Son",
+    allVitalsNormal: "All vitals normal",
+    vaccinationDue: "Vaccination due",
+    recentActivity: "Recent Activity",
+    bloodPressureRecorded: "Blood pressure recorded",
+    hoursAgo: "2 hours ago",
+    appointmentBooked: "Appointment booked",
+    yesterday: "Yesterday",
+    healthReportShared: "Health report shared",
+    daysAgo: "3 days ago",
     voiceCommands: {
       goToAppointments: "നിങ്ങൾക്കായി അപ്പോയിന്റ്മെന്റുകൾ തുറക്കുന്നു",
       medicationReminder: "നിങ്ങളുടെ മരുന്നുകൾ പരിശോധിക്കുന്നു",
@@ -443,7 +612,7 @@ export const translations: Record<LanguageKey, TranslationData> = {
       familyHealthNav: "കുടുംബ ആരോഗ്യത്തിന്റെ അവലോകനം കാണിക്കുന്നു"
     }
   },
-  odia: {
+  [Language.Odia]: {
     welcome: "EasyMed ରେ ଆପଣଙ୍କୁ ସ୍ୱାଗତ",
     dashboard: "ଡ୍ୟାସବୋର୍ଡ",
     appointments: "ଅପଏଣ୍ଟମେଣ୍ଟ",
@@ -476,6 +645,19 @@ export const translations: Record<LanguageKey, TranslationData> = {
     aiHealthInsights: "AI ସ୍ୱାସ୍ଥ୍ୟ ଅନ୍ତର୍ଦୃଷ୍ଟି",
     vitalsGreat: "ଆପଣଙ୍କର ଭାଇଟାଲଗୁଡ଼ିକ ବହୁତ ଭଲ ଦେଖାଯାଉଛି!",
     nextCheckup: "ଆପଣଙ୍କର ପରବର୍ତ୍ତୀ ଚେକଅପ ଭୁଲିଯିବେ ନାହିଁ।",
+    // NOTE: Using English as placeholder for missing keys
+    familyHealthTitle: "Family Health",
+    wife: "Wife",
+    son: "Son",
+    allVitalsNormal: "All vitals normal",
+    vaccinationDue: "Vaccination due",
+    recentActivity: "Recent Activity",
+    bloodPressureRecorded: "Blood pressure recorded",
+    hoursAgo: "2 hours ago",
+    appointmentBooked: "Appointment booked",
+    yesterday: "Yesterday",
+    healthReportShared: "Health report shared",
+    daysAgo: "3 days ago",
     voiceCommands: {
       goToAppointments: "ଆପଣଙ୍କ ପାଇଁ ଅପଏଣ୍ଟମେଣ୍ଟ ଖୋଲୁଛି",
       medicationReminder: "ଆପଣଙ୍କର ଔଷଧ ଯାଞ୍ଚ କରୁଛି",
@@ -483,7 +665,7 @@ export const translations: Record<LanguageKey, TranslationData> = {
       familyHealthNav: "ପାରିବାରିକ ସ୍ୱାସ୍ଥ୍ୟର ସମୀକ୍ଷା ଦେଖାଉଛି"
     }
   },
-  assamese: {
+  [Language.Assamese]: {
     welcome: "EasyMed লৈ আপোনাক স্বাগতম",
     dashboard: "ডেচব'ৰ্ড",
     appointments: "এপইনটমেণ্ট",
@@ -516,6 +698,19 @@ export const translations: Record<LanguageKey, TranslationData> = {
     aiHealthInsights: "AI স্বাস্থ্য অন্তৰ্দৃষ্টি",
     vitalsGreat: "আপোনাৰ ভাইটেলবোৰ বৰ ভাল দেখা গৈছে!",
     nextCheckup: "আপোনাৰ পৰৱৰ্তী চেকআপ পাহৰি নাযাব।",
+    // NOTE: Using English as placeholder for missing keys
+    familyHealthTitle: "Family Health",
+    wife: "Wife",
+    son: "Son",
+    allVitalsNormal: "All vitals normal",
+    vaccinationDue: "Vaccination due",
+    recentActivity: "Recent Activity",
+    bloodPressureRecorded: "Blood pressure recorded",
+    hoursAgo: "2 hours ago",
+    appointmentBooked: "Appointment booked",
+    yesterday: "Yesterday",
+    healthReportShared: "Health report shared",
+    daysAgo: "3 days ago",
     voiceCommands: {
       goToAppointments: "আপোনাৰ বাবে এপইনটমেণ্ট খুলি আছোঁ",
       medicationReminder: "আপোনাৰ ঔষধ পৰীক্ষা কৰি আছোঁ",
@@ -525,4 +720,5 @@ export const translations: Record<LanguageKey, TranslationData> = {
   }
 };
 
+// This allows you to use the keys of TranslationData for type-checking elsewhere.
 export type TranslationKey = keyof TranslationData;

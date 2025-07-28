@@ -22,13 +22,13 @@ export default function EnhancedVoiceAssistant({
   const [error, setError] = useState('');
   const [isEnabled, setIsEnabled] = useState(true);
 
-  const { getTranslation, currentLanguage } = useLanguage();
+  const { currentLanguage, t } = useLanguage();
 
   // Initialize and show greeting
   useEffect(() => {
     if (isEnabled) {
       const greeting = getTimeGreeting();
-      const welcomeMessage = `${getTranslation(greeting)}, ${userName}! ${getTranslation('healthCompanion')}`;
+      const welcomeMessage = `${t(greeting)}, ${userName}! ${t('healthCompanion')}`;
       speakResponse(welcomeMessage);
     }
   }, [currentLanguage, userName, isEnabled]);
