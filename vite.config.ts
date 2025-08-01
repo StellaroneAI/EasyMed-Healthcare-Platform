@@ -17,11 +17,12 @@ export default defineConfig({
     open: true
   },
   optimizeDeps: {
-    exclude: ['mongodb'] // Exclude MongoDB from browser bundling
+    exclude: ['mongodb']
   },
   build: {
     rollupOptions: {
-      external: ['mongodb', 'crypto', 'util'] // Mark as external for build
+      input: resolve(__dirname, 'index.html'),
+      external: ['mongodb', 'crypto', 'util']
     }
   }
 })
