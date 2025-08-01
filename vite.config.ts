@@ -23,10 +23,5 @@ export default defineConfig({
     rollupOptions: {
       external: ['mongodb', 'crypto', 'util'] // Mark as external for build
     }
-  },
-  esbuild: {
-    loader: 'tsx',
-    include: /src\/.*\.[tj]sx?$/,
-    exclude: []
   }
 })
