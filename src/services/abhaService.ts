@@ -103,9 +103,9 @@ class ABHAService {
   private clientSecret: string;
 
   constructor() {
-    this.baseUrl = import.meta.env.VITE_ABHA_BASE_URL || 'https://abhasbx.abdm.gov.in';
-    this.clientId = import.meta.env.VITE_ABHA_CLIENT_ID || '';
-    this.clientSecret = import.meta.env.VITE_ABHA_CLIENT_SECRET || '';
+    this.baseUrl = import.meta.env.VITE_ABDM_BASE_URL || 'https://abhasbx.abdm.gov.in';
+    this.clientId = import.meta.env.VITE_ABDM_CLIENT_ID || '';
+    this.clientSecret = import.meta.env.VITE_ABDM_CLIENT_SECRET || '';
   }
 
   // Step 1: Generate ABHA Number using Aadhaar
