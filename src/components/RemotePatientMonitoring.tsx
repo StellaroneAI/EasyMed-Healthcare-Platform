@@ -32,158 +32,13 @@ interface PatientReading {
 }
 
 export default function RemotePatientMonitoring() {
-  const { currentLanguage } = useLanguage();
+  const { currentLanguage, t } = useLanguage();
   const { isABHAConnected } = useABHA();
   const [devices, setDevices] = useState<MonitoringDevice[]>([]);
   const [readings, setReadings] = useState<PatientReading[]>([]);
   const [currentVitals, setCurrentVitals] = useState<VitalSigns | null>(null);
   const [isRecording, setIsRecording] = useState(false);
 
-  // RPM translations
-  const rpmTexts = {
-    english: {
-      title: "📊 Remote Patient Monitoring",
-      subtitle: "Track your vital signs with connected devices",
-      currentVitals: "Current Vital Signs",
-      devices: "Connected Devices",
-      readings: "Recent Readings",
-      recordVitals: "Record Vitals",
-      noDevices: "No devices connected",
-      noReadings: "No readings recorded yet",
-      connectDevice: "Connect Device",
-      syncNow: "Sync Now",
-      heartRate: "Heart Rate",
-      bloodPressure: "Blood Pressure",
-      temperature: "Temperature",
-      oxygenSaturation: "Oxygen Saturation",
-      respiratoryRate: "Respiratory Rate",
-      bloodGlucose: "Blood Glucose",
-      weight: "Weight",
-      height: "Height",
-      bpm: "bpm",
-      mmhg: "mmHg",
-      celsius: "°C",
-      fahrenheit: "°F",
-      percent: "%",
-      mgdl: "mg/dL",
-      kg: "kg",
-      cm: "cm",
-      connected: "Connected",
-      disconnected: "Disconnected",
-      batteryLow: "Battery Low",
-      batteryGood: "Battery Good",
-      normal: "Normal",
-      high: "High",
-      low: "Low",
-      critical: "Critical",
-      lastReading: "Last Reading",
-      alerts: "Health Alerts",
-      trends: "Trends",
-      shareWithDoctor: "Share with Doctor",
-      emergencyAlert: "Emergency Alert",
-      vitalsOutOfRange: "Vitals out of normal range",
-      deviceKit: "EasyMed Device Kit",
-      instructions: "Follow device instructions for accurate readings",
-      dataSharing: "Your data is securely shared with healthcare providers",
-      aiAnalysis: "AI-powered health analysis available"
-    },
-    hindi: {
-      title: "📊 रिमोट रोगी निगरानी",
-      subtitle: "कनेक्टेड डिवाइसेस के साथ अपने महत्वपूर्ण संकेतों को ट्रैक करें",
-      currentVitals: "वर्तमान महत्वपूर्ण संकेत",
-      devices: "जुड़े हुए उपकरण",
-      readings: "हाल की रीडिंग",
-      recordVitals: "वाइटल्स रिकॉर्ड करें",
-      noDevices: "कोई उपकरण कनेक्ट नहीं",
-      noReadings: "अभी तक कोई रीडिंग रिकॉर्ड नहीं की गई",
-      connectDevice: "डिवाइस कनेक्ट करें",
-      syncNow: "अभी सिंक करें",
-      heartRate: "हृदय गति",
-      bloodPressure: "रक्तचाप",
-      temperature: "तापमान",
-      oxygenSaturation: "ऑक्सीजन संतृप्ति",
-      respiratoryRate: "श्वसन दर",
-      bloodGlucose: "रक्त शर्करा",
-      weight: "वजन",
-      height: "ऊंचाई",
-      bpm: "बीपीएम",
-      mmhg: "एमएमएचजी",
-      celsius: "°सेल्सियस",
-      fahrenheit: "°फारेनहाइट",
-      percent: "%",
-      mgdl: "मिलीग्राम/डीएल",
-      kg: "किलो",
-      cm: "सेमी",
-      connected: "कनेक्टेड",
-      disconnected: "डिस्कनेक्टेड",
-      batteryLow: "बैटरी कम",
-      batteryGood: "बैटरी अच्छी",
-      normal: "सामान्य",
-      high: "उच्च",
-      low: "निम्न",
-      critical: "गंभीर",
-      lastReading: "अंतिम रीडिंग",
-      alerts: "स्वास्थ्य अलर्ट",
-      trends: "रुझान",
-      shareWithDoctor: "डॉक्टर के साथ साझा करें",
-      emergencyAlert: "आपातकालीन अलर्ट",
-      vitalsOutOfRange: "वाइटल्स सामान्य सीमा से बाहर",
-      deviceKit: "ईज़ीमेड डिवाइस किट",
-      instructions: "सटीक रीडिंग के लिए डिवाइस निर्देशों का पालन करें",
-      dataSharing: "आपका डेटा स्वास्थ्य सेवा प्रदाताओं के साथ सुरक्षित रूप से साझा किया जाता है",
-      aiAnalysis: "एआई-संचालित स्वास्थ्य विश्लेषण उपलब्ध"
-    },
-    tamil: {
-      title: "📊 தொலைநிலை நோயாளி கண்காணிப்பு",
-      subtitle: "இணைக்கப்பட்ட சாதனங்களுடன் உங்கள் முக்கிய அறிகுறிகளைக் கண்காணிக்கவும்",
-      currentVitals: "தற்போதைய முக்கிய அறிகுறிகள்",
-      devices: "இணைக்கப்பட்ட சாதனங்கள்",
-      readings: "சமீபத்திய அளவீடுகள்",
-      recordVitals: "முக்கிய அறிகுறிகளைப் பதிவு செய்யவும்",
-      noDevices: "எந்த சாதனமும் இணைக்கப்படவில்லை",
-      noReadings: "இன்னும் எந்த அளவீடும் பதிவு செய்யப்படவில்லை",
-      connectDevice: "சாதனத்தை இணைக்கவும்",
-      syncNow: "இப்போது ஒத்திசைக்கவும்",
-      heartRate: "இதயத் துடிப்பு",
-      bloodPressure: "இரத்த அழுத்தம்",
-      temperature: "வெப்பநிலை",
-      oxygenSaturation: "ஆக்ஸிஜன் செறிவு",
-      respiratoryRate: "சுவாச வீதம்",
-      bloodGlucose: "இரத்த சர்க்கரை",
-      weight: "எடை",
-      height: "உயரம்",
-      bpm: "பிபிஎம்",
-      mmhg: "எம்எம்எச்ஜி",
-      celsius: "°செல்சியஸ்",
-      fahrenheit: "°பாரன்ஹீட்",
-      percent: "%",
-      mgdl: "மிகி/டிஎல்",
-      kg: "கிலோ",
-      cm: "சென்மீ",
-      connected: "இணைக்கப்பட்டுள்ளது",
-      disconnected: "துண்டிக்கப்பட்டுள்ளது",
-      batteryLow: "பேட்டரி குறைவு",
-      batteryGood: "பேட்டரி நல்லது",
-      normal: "சாதாரண",
-      high: "உயர்ந்த",
-      low: "குறைந்த",
-      critical: "மிக முக்கியமான",
-      lastReading: "கடைசி அளவீடு",
-      alerts: "சுகாதார எச்சரிக்கைகள்",
-      trends: "போக்குகள்",
-      shareWithDoctor: "மருத்துவருடன் பகிர்ந்து கொள்ளுங்கள்",
-      emergencyAlert: "அவசர எச்சரிக்கை",
-      vitalsOutOfRange: "முக்கிய அறிகுறிகள் சாதாரண வரம்புக்கு வெளியே",
-      deviceKit: "ஈஸிமெட் சாதன கிட்",
-      instructions: "துல்லியமான அளவீடுகளுக்கு சாதன வழிமுறைகளைப் பின்பற்றவும்",
-      dataSharing: "உங்கள் தரவு சுகாதாரப் பராமரிப்பாளர்களுடன் பாதுகாப்பாகப் பகிரப்படுகிறது",
-      aiAnalysis: "AI-இயங்கும் சுகாதார பகுப்பாய்வு கிடைக்கிறது"
-    }
-  };
-
-  const getRPMText = (key: keyof typeof rpmTexts.english): string => {
-    return rpmTexts[currentLanguage as keyof typeof rpmTexts]?.[key] || rpmTexts.english[key];
-  };
 
   // Mock devices data
   const mockDevices: MonitoringDevice[] = [
@@ -330,7 +185,7 @@ export default function RemotePatientMonitoring() {
       <div className="bg-white/70 backdrop-blur-sm p-4 sm:p-6 rounded-xl border border-white/20">
         <div className="text-center py-8">
           <div className="text-4xl mb-4">📊</div>
-          <h3 className="text-lg font-semibold mb-2">{getRPMText('title')}</h3>
+          <h3 className="text-lg font-semibold mb-2">{t('rpmTitle')}</h3>
           <p className="text-gray-600 mb-4">Connect ABHA to access remote monitoring</p>
         </div>
       </div>
@@ -347,9 +202,9 @@ export default function RemotePatientMonitoring() {
           </div>
           <div className="ml-4">
             <h3 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-              {getRPMText('title')}
+              {t('rpmTitle')}
             </h3>
-            <p className="text-sm text-gray-600">{getRPMText('subtitle')}</p>
+            <p className="text-sm text-gray-600">{t('rpmSubtitle')}</p>
           </div>
         </div>
         <button
@@ -360,7 +215,7 @@ export default function RemotePatientMonitoring() {
               : 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:shadow-blue-200'
           }`}
         >
-          {isRecording ? '🔴 Recording...' : `📈 ${getRPMText('recordVitals')}`}
+          {isRecording ? '🔴 Recording...' : `📈 ${t('recordVitals')}`}
         </button>
       </div>
 
@@ -369,9 +224,9 @@ export default function RemotePatientMonitoring() {
         <div className="flex items-center space-x-3">
           <div className="text-2xl">📦</div>
           <div className="flex-1">
-            <h4 className="font-medium text-blue-800">{getRPMText('deviceKit')}</h4>
-            <p className="text-sm text-blue-600">{getRPMText('instructions')}</p>
-            <p className="text-xs text-blue-500 mt-1">{getRPMText('dataSharing')}</p>
+            <h4 className="font-medium text-blue-800">{t('deviceKit')}</h4>
+            <p className="text-sm text-blue-600">{t('instructions')}</p>
+            <p className="text-xs text-blue-500 mt-1">{t('dataSharing')}</p>
           </div>
         </div>
       </div>
@@ -379,14 +234,14 @@ export default function RemotePatientMonitoring() {
       {/* Current Vitals */}
       {currentVitals && (
         <div className="mb-6">
-          <h4 className="font-medium mb-3">{getRPMText('currentVitals')}</h4>
+          <h4 className="font-medium mb-3">{t('currentVitals')}</h4>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             <div className="bg-white/50 p-3 rounded-lg border border-white/20">
               <div className="text-center">
                 <div className="text-xl mb-1">💓</div>
-                <p className="text-xs text-gray-600">{getRPMText('heartRate')}</p>
+                <p className="text-xs text-gray-600">{t('heartRate')}</p>
                 <p className={`font-bold ${getVitalColor(getVitalStatus('heartRate', currentVitals.heartRate))}`}>
-                  {currentVitals.heartRate} {getRPMText('bpm')}
+                  {currentVitals.heartRate} {t('bpm')}
                 </p>
               </div>
             </div>
@@ -394,20 +249,20 @@ export default function RemotePatientMonitoring() {
             <div className="bg-white/50 p-3 rounded-lg border border-white/20">
               <div className="text-center">
                 <div className="text-xl mb-1">🩺</div>
-                <p className="text-xs text-gray-600">{getRPMText('bloodPressure')}</p>
+                <p className="text-xs text-gray-600">{t('bloodPressure')}</p>
                 <p className="font-bold text-blue-600">
                   {currentVitals.bloodPressure.systolic}/{currentVitals.bloodPressure.diastolic}
                 </p>
-                <p className="text-xs text-gray-500">{getRPMText('mmhg')}</p>
+                <p className="text-xs text-gray-500">{t('mmhg')}</p>
               </div>
             </div>
 
             <div className="bg-white/50 p-3 rounded-lg border border-white/20">
               <div className="text-center">
                 <div className="text-xl mb-1">🌡️</div>
-                <p className="text-xs text-gray-600">{getRPMText('temperature')}</p>
+                <p className="text-xs text-gray-600">{t('temperature')}</p>
                 <p className={`font-bold ${getVitalColor(getVitalStatus('temperature', currentVitals.temperature))}`}>
-                  {currentVitals.temperature}{getRPMText('fahrenheit')}
+                  {currentVitals.temperature}{t('fahrenheit')}
                 </p>
               </div>
             </div>
@@ -415,9 +270,9 @@ export default function RemotePatientMonitoring() {
             <div className="bg-white/50 p-3 rounded-lg border border-white/20">
               <div className="text-center">
                 <div className="text-xl mb-1">🫁</div>
-                <p className="text-xs text-gray-600">{getRPMText('oxygenSaturation')}</p>
+                <p className="text-xs text-gray-600">{t('oxygenSaturation')}</p>
                 <p className={`font-bold ${getVitalColor(getVitalStatus('oxygenSaturation', currentVitals.oxygenSaturation))}`}>
-                  {currentVitals.oxygenSaturation}{getRPMText('percent')}
+                  {currentVitals.oxygenSaturation}{t('percent')}
                 </p>
               </div>
             </div>
@@ -427,11 +282,11 @@ export default function RemotePatientMonitoring() {
 
       {/* Connected Devices */}
       <div className="mb-6">
-        <h4 className="font-medium mb-3">{getRPMText('devices')}</h4>
+        <h4 className="font-medium mb-3">{t('devices')}</h4>
         {devices.length === 0 ? (
           <div className="text-center py-6 bg-white/30 rounded-lg">
             <div className="text-2xl mb-2">📱</div>
-            <p className="text-gray-600 text-sm">{getRPMText('noDevices')}</p>
+            <p className="text-gray-600 text-sm">{t('noDevices')}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -448,14 +303,14 @@ export default function RemotePatientMonitoring() {
                             ? 'bg-green-100 text-green-800' 
                             : 'bg-red-100 text-red-800'
                         }`}>
-                          {device.isConnected ? getRPMText('connected') : getRPMText('disconnected')}
+                          {device.isConnected ? t('connected') : t('disconnected')}
                         </span>
                         <span className={`${device.batteryLevel < 20 ? 'text-red-600' : 'text-gray-600'}`}>
                           🔋 {device.batteryLevel}%
                         </span>
                       </div>
                       <p className="text-xs text-gray-500 mt-1">
-                        {getRPMText('lastReading')}: {formatTime(device.lastSync)}
+                        {t('lastReading')}: {formatTime(device.lastSync)}
                       </p>
                     </div>
                   </div>
@@ -468,7 +323,7 @@ export default function RemotePatientMonitoring() {
                         : 'bg-gray-400 text-gray-200 cursor-not-allowed'
                     }`}
                   >
-                    {isRecording ? 'Syncing...' : getRPMText('syncNow')}
+                    {isRecording ? 'Syncing...' : t('syncNow')}
                   </button>
                 </div>
               </div>
@@ -479,11 +334,11 @@ export default function RemotePatientMonitoring() {
 
       {/* Recent Readings */}
       <div>
-        <h4 className="font-medium mb-3">{getRPMText('readings')}</h4>
+        <h4 className="font-medium mb-3">{t('readings')}</h4>
         {readings.length === 0 ? (
           <div className="text-center py-6 bg-white/30 rounded-lg">
             <div className="text-2xl mb-2">📊</div>
-            <p className="text-gray-600 text-sm">{getRPMText('noReadings')}</p>
+            <p className="text-gray-600 text-sm">{t('noReadings')}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -517,7 +372,7 @@ export default function RemotePatientMonitoring() {
                     </div>
                     {reading.alerts.length > 0 && (
                       <div className="mt-2">
-                        <p className="text-xs text-orange-600 font-medium">{getRPMText('alerts')}:</p>
+                        <p className="text-xs text-orange-600 font-medium">{t('alerts')}:</p>
                         {reading.alerts.map((alert, index) => (
                           <p key={index} className="text-xs text-orange-600">• {alert}</p>
                         ))}
@@ -525,7 +380,7 @@ export default function RemotePatientMonitoring() {
                     )}
                   </div>
                   <button className="bg-purple-600 text-white px-3 py-1 rounded text-xs hover:bg-purple-700 transition-all ml-2">
-                    {getRPMText('shareWithDoctor')}
+                    {t('shareWithDoctor')}
                   </button>
                 </div>
               </div>
@@ -539,7 +394,7 @@ export default function RemotePatientMonitoring() {
         <div className="flex items-center space-x-3">
           <div className="text-2xl">🤖</div>
           <div className="flex-1">
-            <h4 className="font-medium text-purple-800">{getRPMText('aiAnalysis')}</h4>
+            <h4 className="font-medium text-purple-800">{t('aiAnalysis')}</h4>
             <p className="text-sm text-purple-600">AI-powered insights based on your vital trends and patterns</p>
           </div>
           <button className="bg-purple-600 text-white px-3 py-1 rounded text-xs hover:bg-purple-700 transition-all">
