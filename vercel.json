@@ -4,5 +4,4 @@
   "outputDirectory": "dist",
   "installCommand": "npm install",
   "framework": "vite"
-  "root": "src"
 }
