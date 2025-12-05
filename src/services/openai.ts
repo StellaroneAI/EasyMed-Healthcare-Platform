@@ -1,10 +1,17 @@
 import OpenAI from 'openai';
 
-// Initialize OpenAI client
+// Initialize OpenAI client with Vite env (process.env is not available in the browser bundle)
+const apiKey = import.meta.env.VITE_OPENAI_API_KEY || '';
 const openai = new OpenAI({
-  apiKey: process.env.VITE_OPENAI_API_KEY, // Make sure to add this to your .env file
+  apiKey,
   dangerouslyAllowBrowser: true // Only for demo - in production, use a backend
 });
+
+function assertApiKey() {
+  if (!apiKey) {
+    throw new Error('OpenAI API key is not configured. Please set VITE_OPENAI_API_KEY.');
+  }
+}
 
 export class EnhancedVoiceService {
   private mediaRecorder: MediaRecorder | null = null;
@@ -17,9 +24,11 @@ export class EnhancedVoiceService {
    */
   async speechToText(audioBlob: Blob, language?: string): Promise<string> {
     try {
+      assertApiKey();
+
       // Convert blob to file
-      const audioFile = new File([audioBlob], 'audio.webm', { 
-        type: 'audio/webm' 
+      const audioFile = new File([audioBlob], 'audio.webm', {
+        type: 'audio/webm'
       });
 
       const transcription = await openai.audio.transcriptions.create({
@@ -43,6 +52,8 @@ export class EnhancedVoiceService {
    */
   async textToSpeech(text: string, language: string = 'english'): Promise<Blob> {
     try {
+      assertApiKey();
+
       const voice = this.getOptimalVoice(language);
       
       const response = await openai.audio.speech.create({
@@ -68,11 +79,13 @@ export class EnhancedVoiceService {
    * Enhanced AI Chat with multilingual support
    */
   async processHealthQuery(
-    query: string, 
+    query: string,
     language: string = 'english',
     context: any = {}
   ): Promise<string> {
     try {
+      assertApiKey();
+
       const systemPrompt = this.getSystemPrompt(language, context);
       
       const completion = await openai.chat.completions.create({
