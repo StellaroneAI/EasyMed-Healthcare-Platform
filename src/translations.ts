@@ -28,6 +28,9 @@ export enum Language {
   Assamese = 'assamese',
 }
 
+// Backwards-compatible alias used across the app for language selection
+export type LanguageKey = Language;
+
 // All keys are now mandatory to ensure a complete UI in every language.
 export interface TranslationData {
   welcome: string;

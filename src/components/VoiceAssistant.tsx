@@ -233,7 +233,7 @@ export default function VoiceAssistant({ userName = "User", onCommand }: VoiceAs
     }
   };
 
-  // Enhanced voice command processing with Tamil responses
+  // Enhanced voice command processing with translated responses
   const processVoiceCommand = (command: string) => {
     const lowerCommand = command.toLowerCase();
     let responseText = '';
@@ -242,50 +242,54 @@ export default function VoiceAssistant({ userName = "User", onCommand }: VoiceAs
     console.log(`🔄 Processing: "${command}" in ${currentLanguage}`);
 
     // Appointment commands
-    if (lowerCommand.includes('appointment') || lowerCommand.includes('book') || 
+    if (lowerCommand.includes('appointment') || lowerCommand.includes('book') ||
         lowerCommand.includes('अपॉइंटमेंट') || lowerCommand.includes('बुक') ||
         lowerCommand.includes('சந்திப்பு') || lowerCommand.includes('முன்பதிவு')) {
-      
-      responseText = currentLanguage === 'hindi' ? 'अपॉइंटमेंट बुकिंग खोल रहा हूं।' :
+
+      responseText = getVoiceCommand('goToAppointments') ||
+                    (currentLanguage === 'hindi' ? 'अपॉइंटमेंट बुकिंग खोल रहा हूं।' :
                     currentLanguage === 'tamil' ? 'அப்பாயின்ட்மென்ட் புக்கிங் திறக்கிறேன்।' :
-                    'Opening appointment booking.';
+                    'Opening appointment booking.');
       navigationSection = 'appointments';
     }
     // Medicine commands
     else if (lowerCommand.includes('medicine') || lowerCommand.includes('medication') ||
              lowerCommand.includes('दवा') || lowerCommand.includes('औषधि') ||
              lowerCommand.includes('மருந்து')) {
-      
-      responseText = currentLanguage === 'hindi' ? 'आपकी दवाइयां दिखा रहा हूं।' :
+
+      responseText = getVoiceCommand('medicationReminder') ||
+                    (currentLanguage === 'hindi' ? 'आपकी दवाइयां दिखा रहा हूं।' :
                     currentLanguage === 'tamil' ? 'உங்கள் மருந்துகளை காட்டுகிறேன்।' :
-                    'Showing your medications.';
+                    'Showing your medications.');
       navigationSection = 'healthRecords';
     }
     // Emergency commands
     else if (lowerCommand.includes('emergency') || lowerCommand.includes('help') ||
              lowerCommand.includes('आपातकाल') || lowerCommand.includes('मदद') ||
              lowerCommand.includes('அவசரம்') || lowerCommand.includes('உதவி')) {
-      
-      responseText = currentLanguage === 'hindi' ? 'आपातकालीन सेवाओं से जोड़ रहा हूं।' :
-                    currentLanguage === 'tamil' ? 'அவசர சேवைகளுடன் இணைக்கிறேன்।' :
-                    'Connecting to emergency services.';
+
+      responseText = getVoiceCommand('emergency') ||
+                    (currentLanguage === 'hindi' ? 'आपातकालीन सेवाओं से जोड़ रहा हूं।' :
+                    currentLanguage === 'tamil' ? 'அவசர சேவைகளுடன் இணைக்கிறேன்।' :
+                    'Connecting to emergency services.');
       navigationSection = 'emergency';
     }
     // Health/Vitals commands
     else if (lowerCommand.includes('vitals') || lowerCommand.includes('health') ||
              lowerCommand.includes('वाइटल') || lowerCommand.includes('स्वास्थ्य') ||
-             lowerCommand.includes('உயிர்ச்சक்தி') || lowerCommand.includes('சுகாதாரம்')) {
-      
-      responseText = currentLanguage === 'hindi' ? 'आपके स्वास्थ्य संकेतक खोल रहा हूं।' :
-                    currentLanguage === 'tamil' ? 'உங்கள் உயிர்ச்சக்தி கண்காணிப்பை திறக்கிறேன்।' :
-                    'Opening health vitals.';
+             lowerCommand.includes('உயிர்ச்சக்தி') || lowerCommand.includes('சுகாதாரம்')) {
+
+      responseText = getVoiceCommand('familyHealthNav') ||
+                    (currentLanguage === 'hindi' ? 'आपके स्वास्थ्य संकेतक खोल रहा हूं।' :
+                    currentLanguage === 'tamil' ? 'உங்கள் உயிர்ச்சக்தि கண்காணிப்பை திறக்கிறேன்।' :
+                    'Opening health vitals.');
       navigationSection = 'vitalsMonitoring';
     }
     else {
       // Default response for unrecognized commands
-      responseText = currentLanguage === 'hindi' ? 
+      responseText = currentLanguage === 'hindi' ?
         `मैंने "${command}" सुना। कृपया "अपॉइंटमेंट", "दवा", "आपातकाल", या "स्वास्थ्य" कहें।` :
-        currentLanguage === 'tamil' ? 
+        currentLanguage === 'tamil' ?
         `நான் "${command}" கேட்டேன்। தயவுசெய்து "சந்திப்பு", "மருந்து", "அவசரம்", அல்லது "சுகாதாரம்" என்று சொல்லுங்கள்।` :
         `I heard "${command}". Try saying "appointment", "medicine", "emergency", or "health".`;
     }
