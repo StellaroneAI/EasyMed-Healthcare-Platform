@@ -145,6 +145,22 @@ export default function PatientDashboard({ userInfo, onLogout }: PatientDashboar
               <div>
                 <p className="text-xs uppercase tracking-wide text-slate-500">Navigation</p>
                 <p className="text-sm font-semibold text-slate-900">Care Center</p>
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="flex flex-col lg:flex-row gap-8">
+          {/* Modern Sidebar Navigation */}
+          <div className="lg:w-64">
+            <nav className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-white/20">
+              <div className="mb-6">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                  <span className="text-2xl text-white">👤</span>
+                </div>
+                <h3 className="text-center font-semibold text-gray-800">
+                  {userInfo?.name || 'Patient Dashboard'}
+                </h3>
+                <p className="text-center text-sm text-gray-600">
+                  {userInfo?.email || 'Healthcare Portal'}
+                </p>
+
               </div>
             </div>
             <nav className="flex-1 overflow-y-auto custom-scrollbar pr-1">
@@ -525,11 +541,19 @@ export default function PatientDashboard({ userInfo, onLogout }: PatientDashboar
           </div>
         </div>
 
+
         {/* Floating Action Menu */}
         <FloatingMenu onMenuSelect={setActiveSection} activeMenu={activeSection} />
 
         </main>
       </div>
+
+      {/* Floating Action Menu */}
+      <FloatingMenu
+        onMenuSelect={setActiveSection}
+        activeMenu={activeSection}
+      />
+    </main>
     </div>
   );
 }
