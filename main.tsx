@@ -11,9 +11,11 @@ const Root = () => {
         alignItems: 'center',
         justifyContent: 'center',
         fontSize: '2rem',
+        background: '#0f172a',
+        color: 'white',
       }}
     >
-      Hello Macha 👋 – if you see this, React is working!
+      Hello Macha 👋 – TEST PAGE
     </div>
   );
 };
