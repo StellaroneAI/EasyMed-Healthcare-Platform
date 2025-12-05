@@ -1,5 +1,5 @@
 // Twilio Service for OTP Authentication
-// Handles SMS verification for user login
+// Browser-safe mock that avoids bundling server-only Twilio SDK
 
 export interface TwilioConfig {
   accountSid: string;
@@ -20,31 +20,21 @@ export interface OTPSendResult {
   errorMessage?: string;
 }
 
+type OTPEntry = {
+  code: string;
+  expiresAt: number;
+};
+
 class TwilioService {
   private accountSid: string;
   private authToken: string;
   private serviceSid: string;
-  private client: any = null;
+  private otpStore: Map<string, OTPEntry> = new Map();
 
   constructor() {
     this.accountSid = import.meta.env.VITE_TWILIO_ACCOUNT_SID || '';
     this.authToken = import.meta.env.VITE_TWILIO_AUTH_TOKEN || '';
     this.serviceSid = import.meta.env.VITE_TWILIO_VERIFY_SERVICE_SID || '';
-    
-    // Initialize Twilio client only if credentials are available
-    if (this.accountSid && this.authToken) {
-      this.initializeClient();
-    }
-  }
-
-  private async initializeClient() {
-    try {
-      // Import Twilio dynamically to handle browser environment
-      const twilio = await import('twilio');
-      this.client = twilio.default(this.accountSid, this.authToken);
-    } catch (error) {
-      console.error('Failed to initialize Twilio client:', error);
-    }
   }
 
   /**
@@ -54,33 +44,21 @@ class TwilioService {
    */
   async sendOTP(phoneNumber: string): Promise<OTPSendResult> {
     try {
-      if (!this.client) {
-        // Fallback for development/demo mode
-        if (process.env.NODE_ENV === 'development' || !this.accountSid) {
-          console.log(`🔧 Demo Mode: OTP sent to ${phoneNumber}`);
-          return {
-            status: 'pending',
-            sid: 'demo_verification_' + Date.now()
-          };
-        }
-        throw new Error('Twilio client not initialized');
-      }
-
       // Validate phone number format
       if (!this.isValidPhoneNumber(phoneNumber)) {
         throw new Error('Invalid phone number format');
       }
 
-      const verification = await this.client.verify.v2
-        .services(this.serviceSid)
-        .verifications.create({
-          to: phoneNumber,
-          channel: 'sms'
-        });
+      // Generate mock OTP and store with 5 minute expiry
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      const expiresAt = Date.now() + 5 * 60 * 1000;
+      this.otpStore.set(phoneNumber, { code: otp, expiresAt });
+
+      console.log(`🔧 Demo Mode: OTP ${otp} generated for ${phoneNumber}. Expires in 5 minutes.`);
 
       return {
-        status: verification.status as 'pending' | 'failed',
-        sid: verification.sid
+        status: 'pending',
+        sid: 'demo_verification_' + Date.now()
       };
 
     } catch (error: any) {
@@ -100,32 +78,33 @@ class TwilioService {
    */
   async verifyOTP(phoneNumber: string, code: string): Promise<OTPVerificationResult> {
     try {
-      if (!this.client) {
-        // Fallback for development/demo mode
-        if (process.env.NODE_ENV === 'development' || !this.accountSid) {
-          console.log(`🔧 Demo Mode: Verifying OTP ${code} for ${phoneNumber}`);
-          // Accept any 6-digit code in demo mode
-          const isValid = /^\d{6}$/.test(code);
-          return {
-            status: isValid ? 'approved' : 'failed',
-            valid: isValid,
-            sid: 'demo_verification_check_' + Date.now()
-          };
-        }
-        throw new Error('Twilio client not initialized');
+      const session = this.otpStore.get(phoneNumber);
+
+      if (!session || Date.now() > session.expiresAt) {
+        this.otpStore.delete(phoneNumber);
+        return {
+          status: 'failed',
+          valid: false,
+          errorMessage: 'OTP session expired. Please request a new OTP.'
+        };
       }
 
-      const verificationCheck = await this.client.verify.v2
-        .services(this.serviceSid)
-        .verificationChecks.create({
-          to: phoneNumber,
-          code: code
-        });
+      const isValid = session.code === code;
+      if (!isValid) {
+        return {
+          status: 'failed',
+          valid: false,
+          errorMessage: 'Invalid OTP'
+        };
+      }
+
+      // Clean up after successful verification
+      this.otpStore.delete(phoneNumber);
 
       return {
-        status: verificationCheck.status,
-        valid: verificationCheck.status === 'approved',
-        sid: verificationCheck.sid
+        status: 'approved',
+        valid: true,
+        sid: 'demo_verification_check_' + Date.now()
       };
 
     } catch (error: any) {
@@ -191,7 +170,7 @@ class TwilioService {
   getStatus() {
     return {
       configured: this.isConfigured(),
-      demoMode: !this.isConfigured() || process.env.NODE_ENV === 'development',
+      demoMode: !this.isConfigured() || import.meta.env.MODE === 'development',
       accountSid: this.accountSid ? this.accountSid.substring(0, 10) + '...' : 'Not set',
       serviceSid: this.serviceSid ? this.serviceSid.substring(0, 10) + '...' : 'Not set'
     };
