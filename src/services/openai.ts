@@ -1,10 +1,20 @@
 import OpenAI from 'openai';
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.VITE_OPENAI_API_KEY, // Make sure to add this to your .env file
-  dangerouslyAllowBrowser: true // Only for demo - in production, use a backend
-});
+// Read API key from Vite env and guard against missing configuration
+const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+const openai = apiKey
+  ? new OpenAI({
+      apiKey,
+      dangerouslyAllowBrowser: true // Only for demo - in production, use a backend
+    })
+  : null;
+
+function ensureOpenAIClient() {
+  if (!openai) {
+    throw new Error('OpenAI API key is not configured. Set VITE_OPENAI_API_KEY in your environment.');
+  }
+  return openai;
+}
 
 export class EnhancedVoiceService {
   private mediaRecorder: MediaRecorder | null = null;
@@ -22,7 +32,7 @@ export class EnhancedVoiceService {
         type: 'audio/webm' 
       });
 
-      const transcription = await openai.audio.transcriptions.create({
+      const transcription = await ensureOpenAIClient().audio.transcriptions.create({
         file: audioFile,
         model: 'whisper-1',
         language: this.getWhisperLanguageCode(language), // Optional: specify language
@@ -45,7 +55,7 @@ export class EnhancedVoiceService {
     try {
       const voice = this.getOptimalVoice(language);
       
-      const response = await openai.audio.speech.create({
+      const response = await ensureOpenAIClient().audio.speech.create({
         model: 'tts-1-hd', // High quality model
         voice: voice,
         input: text,
@@ -75,7 +85,7 @@ export class EnhancedVoiceService {
     try {
       const systemPrompt = this.getSystemPrompt(language, context);
       
-      const completion = await openai.chat.completions.create({
+      const completion = await ensureOpenAIClient().chat.completions.create({
         model: 'gpt-4',
         messages: [
           { role: 'system', content: systemPrompt },
