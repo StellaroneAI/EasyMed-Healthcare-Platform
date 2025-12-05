@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import LanguageSelector from '../LanguageSelector';
 import VoiceInterface from '../VoiceInterface';
@@ -9,6 +10,7 @@ interface AdminDashboardProps {
 
 export default function AdminDashboard({ userInfo, onLogout }: AdminDashboardProps) {
   const [activeSection, setActiveSection] = useState('overview');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const systemStats = {
     totalUsers: 320,
@@ -85,45 +87,43 @@ export default function AdminDashboard({ userInfo, onLogout }: AdminDashboardPro
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50">
-      {/* Modern Header with Gradient */}
-      <header className="bg-gradient-to-r from-red-600 via-red-700 to-orange-600 shadow-xl">
+    <div className="min-h-screen bg-slate-50 text-slate-900">
+      <header className="sticky top-0 z-40 bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 shadow-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
+          <div className="flex items-center justify-between py-4">
             <div className="flex items-center space-x-4">
+              <button
+                className="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white/10 text-white hover:bg-white/20 transition"
+                onClick={() => setIsSidebarOpen((prev) => !prev)}
+                aria-label="Toggle navigation"
+              >
+                <span className="text-xl">{isSidebarOpen ? '✖️' : '☰'}</span>
+              </button>
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10">
                   <span className="text-2xl">⚙️</span>
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-white">EasyMedPro</h1>
-                  <p className="text-red-100 text-sm">Super Admin Portal</p>
+                  <h1 className="text-2xl font-semibold text-white tracking-tight">EasyMedPro</h1>
+                  <p className="text-indigo-100 text-sm">Super Admin Portal</p>
                 </div>
               </div>
-              <span className="ml-4 px-4 py-2 bg-red-500/30 backdrop-blur-sm text-red-100 rounded-full text-sm font-medium border border-red-300/30">
+              <span className="hidden sm:inline-flex px-4 py-2 bg-white/10 backdrop-blur-sm text-indigo-100 rounded-full text-sm font-medium border border-white/10">
                 System Administrator
               </span>
             </div>
-            <div className="flex items-center space-x-4">
-              {/* Language Selector */}
+            <div className="flex items-center space-x-3">
               <LanguageSelector />
-              
-              {/* Voice Interface */}
               <VoiceInterface className="hidden sm:block" />
-              
-              <div className="flex items-center space-x-3 text-white">
-                <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                  <span className="text-sm font-bold">
-                    {userInfo?.name?.charAt(0) || 'A'}
-                  </span>
+              <div className="flex items-center space-x-3 text-white px-3 py-2 rounded-xl bg-white/5 border border-white/10">
+                <div className="w-9 h-9 bg-white/10 rounded-full flex items-center justify-center">
+                  <span className="text-sm font-bold">{userInfo?.name?.charAt(0) || 'A'}</span>
                 </div>
-                <span className="hidden sm:block">
-                  {userInfo?.name || 'Super Admin'}
-                </span>
+                <span className="hidden sm:block font-medium">{userInfo?.name || 'Super Admin'}</span>
               </div>
               <button
                 onClick={onLogout}
-                className="bg-red-500/80 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-all duration-200 backdrop-blur-sm border border-red-400/30"
+                className="bg-rose-500/90 hover:bg-rose-600 text-white px-4 py-2 rounded-xl transition-all duration-200 shadow-lg shadow-rose-500/30"
               >
                 Logout
               </button>
@@ -132,11 +132,25 @@ export default function AdminDashboard({ userInfo, onLogout }: AdminDashboardPro
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar Navigation */}
-          <div className="lg:w-64">
-            <nav className="bg-white rounded-lg shadow p-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex gap-6">
+        {isSidebarOpen && (
+          <div
+            className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-30 lg:hidden"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+
+        <aside
+          className={`fixed lg:static inset-y-0 left-0 z-40 w-72 transform bg-white/95 backdrop-blur border-r border-slate-200 shadow-2xl lg:shadow-none transition-transform duration-300 lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        >
+          <div className="h-full flex flex-col p-5 space-y-4">
+            <div className="hidden lg:flex items-center justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-wide text-slate-500">Navigation</p>
+                <p className="text-sm font-semibold text-slate-900">Control Center</p>
+              </div>
+            </div>
+            <nav className="flex-1 overflow-y-auto custom-scrollbar pr-1">
               <ul className="space-y-2">
                 {[
                   { id: 'overview', name: 'System Overview', icon: '📊' },
@@ -150,25 +164,35 @@ export default function AdminDashboard({ userInfo, onLogout }: AdminDashboardPro
                 ].map((item) => (
                   <li key={item.id}>
                     <button
-                      onClick={() => setActiveSection(item.id)}
-                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center space-x-3 ${
+                      onClick={() => {
+                        setActiveSection(item.id);
+                        setIsSidebarOpen(false);
+                      }}
+                      className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-200 flex items-center space-x-3 border border-transparent ${
                         activeSection === item.id
-                          ? 'bg-red-100 text-red-700 font-medium'
-                          : 'text-gray-700 hover:bg-gray-100'
+                          ? 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-lg'
+                          : 'text-slate-700 hover:bg-slate-100/80 border-slate-100'
                       }`}
                     >
-                      <span>{item.icon}</span>
-                      <span>{item.name}</span>
+                      <span className="text-lg">{item.icon}</span>
+                      <span className="font-medium">{item.name}</span>
                     </button>
                   </li>
                 ))}
               </ul>
             </nav>
+            <div className="rounded-xl bg-gradient-to-r from-indigo-500/10 to-blue-500/10 border border-indigo-100 p-4">
+              <p className="text-sm font-semibold text-slate-900">System Health</p>
+              <p className="text-xs text-slate-600">All services operational</p>
+              <div className="mt-2 h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div className="h-full w-11/12 bg-gradient-to-r from-emerald-500 to-teal-500" />
+              </div>
+            </div>
           </div>
+        </aside>
 
-          {/* Main Content */}
-          <div className="flex-1">
-            {activeSection === 'overview' && (
+        <main className="flex-1 space-y-6">
+          {activeSection === 'overview' && (
               <div className="space-y-6">
                 <h2 className="text-2xl font-bold text-gray-900">System Overview</h2>
                 
@@ -521,8 +545,7 @@ export default function AdminDashboard({ userInfo, onLogout }: AdminDashboardPro
                 </div>
               </div>
             )}
-          </div>
-        </div>
+        </main>
       </div>
     </div>
   );
