@@ -15,7 +15,7 @@ interface LanguageProviderProps {
 }
 
 export function LanguageProvider({ children }: LanguageProviderProps) {
-  const [currentLanguage, setCurrentLanguage] = useState<keyof typeof translations>('english');
+  const [currentLanguage, setCurrentLanguage] = useState<any>(() => 'english');
 
   const setLanguage = (language: LanguageKey) => {
     setCurrentLanguage(language);
