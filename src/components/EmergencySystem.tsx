@@ -28,7 +28,7 @@ interface LocationData {
 }
 
 export default function EmergencySystem() {
-  const { currentLanguage, getText } = useLanguage();
+  const { currentLanguage } = useLanguage();
   const [isEmergencyMode, setIsEmergencyMode] = useState(false);
   const [currentLocation, setCurrentLocation] = useState<LocationData | null>(null);
   const [emergencyContacts, setEmergencyContacts] = useState<EmergencyContact[]>([]);
@@ -157,7 +157,7 @@ export default function EmergencySystem() {
     const primaryContacts = emergencyContacts.filter(c => c.isPrimary);
     
     for (const contact of primaryContacts) {
-      await sendEmergencyNotification(contact, newAlert);
+      await sendEmergencyNotification();
     }
 
     // Start continuous location sharing
