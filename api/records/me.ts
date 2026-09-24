@@ -9,7 +9,7 @@ export async function GET(request: Request): Promise<Response> {
   const auth = requireRole(request, ['patient', 'doctor', 'asha', 'admin']);
   if (auth instanceof Response) return auth;
   const db = await getDb();
-  const filter = auth.userType === 'patient' ? { patientId: auth.userId } : auth.userType === 'admin' ? {} : { $or: [{ patientId: auth.userId }, { doctorId: auth.userId }] };
+  const filter = auth.userType === 'patient' ? { patientId: auth.userId } : auth.userType === 'doctor' ? { doctorId: auth.userId } : auth.userType === 'asha' ? { ashaId: auth.userId } : {};
   const records = await db.collection('medical_records').find(filter).sort({ createdAt: -1 }).limit(100).toArray();
   await audit({ actorId: auth.userId, actorRole: auth.userType, action: 'medical_records.read', resource: 'medical_records', outcome: 'success' });
   return json({ records });
