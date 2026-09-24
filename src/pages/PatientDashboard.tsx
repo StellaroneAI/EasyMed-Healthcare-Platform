@@ -12,12 +12,12 @@ import AIChatAssistant from '../components/AIChatAssistant';
 import MovableFloatingButton from '../components/MovableFloatingButton';
 import { useLanguage } from '../contexts/LanguageContext';
 
-export default function PatientDashboard() {
+interface PatientDashboardProps { userInfo?: { name?: string; phone?: string; email?: string }; onLogout?: () => void; }\n\nexport default function PatientDashboard({ userInfo, onLogout }: PatientDashboardProps) {
   const { currentLanguage, setLanguage, t } = useLanguage();
-  const [userName, setUserName] = useState('');
+  const [userName, setUserName] = useState(userInfo?.name || '');
 
   useEffect(() => {
-    fetch('/api/auth/me').then(r => r.ok ? r.json() : null).then(data => {
+    fetch('/api/auth/me', { credentials: 'include' }).then(r => r.ok ? r.json() : null).then(data => {
       if (data?.user?.name) setUserName(data.user.name);
     }).catch(() => undefined);
   }, []);
