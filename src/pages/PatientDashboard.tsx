@@ -12,7 +12,9 @@ import AIChatAssistant from '../components/AIChatAssistant';
 import MovableFloatingButton from '../components/MovableFloatingButton';
 import { useLanguage } from '../contexts/LanguageContext';
 
-interface PatientDashboardProps { userInfo?: { name?: string; phone?: string; email?: string }; onLogout?: () => void; }\n\nexport default function PatientDashboard({ userInfo, onLogout }: PatientDashboardProps) {
+interface PatientDashboardProps { userInfo?: { name?: string; phone?: string; email?: string }; onLogout?: () => void; }
+
+export default function PatientDashboard({ userInfo, onLogout }: PatientDashboardProps) {
   const { currentLanguage, setLanguage, t } = useLanguage();
   const [userName, setUserName] = useState(userInfo?.name || '');
 
