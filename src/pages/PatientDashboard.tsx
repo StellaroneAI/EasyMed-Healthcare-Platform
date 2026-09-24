@@ -356,7 +356,7 @@ export default function PatientDashboard() {
         </section>
 
         {/* Voice Assistant */}
-        <VoiceAssistant userName="Rajesh" />
+        <VoiceAssistant />
       </main>
 
       {/* AI Chat Assistant */}
