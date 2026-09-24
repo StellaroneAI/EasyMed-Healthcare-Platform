@@ -2,6 +2,7 @@ import { json, methodNotAllowed } from '../_lib/response';
 import { checkVerification } from '../_lib/twilio';
 import { createSession, sessionCookie } from '../_lib/session';
 import { getDb } from '../_lib/mongo';
+import { audit } from '../_lib/audit';
 
 export async function POST(request: Request): Promise<Response> {
   try {
@@ -10,8 +11,11 @@ export async function POST(request: Request): Promise<Response> {
       return json({ error: 'Invalid verification request.' }, { status: 400 });
     }
     if (!await checkVerification(phone, otp)) {
+      await audit({ actorId: phone, actorRole: userType, action: 'auth.otp.verify', resource: 'authentication', outcome: 'denied' });
       return json({ error: 'Invalid or expired OTP.' }, { status: 401 });
     }
+
+    await audit({ actorId: phone, actorRole: userType, action: 'auth.otp.verify', resource: 'authentication', outcome: 'success' });
 
     if (userType === 'admin') {
       const adminPhone = process.env.ADMIN_PHONE;
