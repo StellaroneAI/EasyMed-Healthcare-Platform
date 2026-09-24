@@ -1,7 +1,7 @@
-import { getDb } from '../_lib/mongo';
-import { json, methodNotAllowed } from '../_lib/response';
-import { requireRole } from '../_lib/authz';
-import { audit } from '../_lib/audit';
+import { getDb } from '../_lib/mongo.js';
+import { json, methodNotAllowed } from '../_lib/response.js';
+import { requireRole } from '../_lib/authz.js';
+import { audit } from '../_lib/audit.js';
 const clean=(v:unknown,max=300)=>typeof v==='string'?v.trim().slice(0,max):'';
 export async function GET(request:Request):Promise<Response>{const a=requireRole(request,['patient','admin']);if(a instanceof Response)return a;const db=await getDb();const claims=await db.collection('insurance_claims').find(a.userType==='patient'?{patientId:a.userId}:{}).sort({createdAt:-1}).limit(100).toArray();return json({claims});}
 export async function POST(request:Request):Promise<Response>{const a=requireRole(request,['patient']);if(a instanceof Response)return a;try{const b=await request.json();const treatmentType=clean(b?.treatmentType,120),hospitalName=clean(b?.hospitalName,200),billAmount=Number(b?.billAmount),treatmentDate=clean(b?.treatmentDate,30);if(!treatmentType||!hospitalName||!treatmentDate||!Number.isFinite(billAmount)||billAmount<=0)return json({error:'Invalid claim.'},{status:400});const claim={claimId:'CLM-'+crypto.randomUUID().slice(0,8).toUpperCase(),patientId:a.userId,treatmentType,hospitalName,treatmentDate,billAmount,documents:Array.isArray(b?.documents)?b.documents.filter((x:unknown)=>typeof x==='string').slice(0,5):[],status:'SUBMITTED',createdAt:new Date(),updatedAt:new Date()};const db=await getDb();await db.collection('insurance_claims').insertOne(claim);await audit({actorId:a.userId,actorRole:'patient',action:'insurance.claim.create',resource:claim.claimId,outcome:'success'});return json({success:true,claim},{status:201});}catch{return json({error:'Unable to submit claim.'},{status:500})}}
