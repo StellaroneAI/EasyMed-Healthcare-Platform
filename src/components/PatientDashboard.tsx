@@ -325,7 +325,7 @@ export default function PatientDashboard({ user }: PatientDashboardProps) {
                 <select 
                   value={currentLanguage}
                   onChange={(e) => {
-                    const languageKey = e.target.value as 'english' | 'hindi' | 'tamil';
+                    const languageKey = e.target.value as import('../translations').LanguageKey;
                     setLanguage(languageKey);
                   }}
                   className="appearance-none bg-white/50 border border-gray-200 rounded-lg px-3 py-2 pr-8 text-sm font-medium text-gray-700 hover:bg-white/70 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
