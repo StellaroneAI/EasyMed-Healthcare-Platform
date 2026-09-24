@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAdmin } from '../contexts/AdminContext';
+import { authService, AuthResult } from '../services/realAuthService';
 
 interface LoginPageProps {
   onLogin: (userType: 'patient' | 'asha' | 'doctor' | 'admin', userInfo: any) => void;
@@ -63,45 +64,94 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
     if (!phoneNumber.trim()) return;
     
     setIsLoading(true);
-    // Simulate OTP sending
-    setTimeout(() => {
-      setShowOTP(true);
+    try {
+      let result: AuthResult;
+      
+      if (activeTab === 'admin') {
+        result = await authService.authenticateAdmin(phoneNumber);
+      } else {
+        result = await authService.sendOTP(phoneNumber);
+      }
+      
+      if (result.success && result.otpSent) {
+        setShowOTP(true);
+      } else {
+        alert(result.error || 'Failed to send OTP');
+      }
+    } catch (error: any) {
+      alert(error.message || 'Failed to send OTP');
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const handleLogin = async () => {
     setIsLoading(true);
     
     try {
-      if (activeTab === 'admin') {
-        // Admin login with your privileged phone number
-        const success = await loginAdmin(phoneNumber, {
-          name: phoneNumber === '+919060328119' ? 'Super Admin' : 'Admin User',
-          email: email
-        });
+      if (loginMethod === 'phone' && showOTP && otp) {
+        // OTP verification
+        const result = await authService.verifyOTPAndLogin(phoneNumber, otp);
         
-        if (success) {
-          onLogin('admin', { 
-            phone: phoneNumber, 
-            email, 
-            role: phoneNumber === '+919060328119' ? 'super_admin' : 'admin',
-            name: phoneNumber === '+919060328119' ? 'Super Admin' : 'Admin User'
+        if (result.success && result.user) {
+          if (activeTab === 'admin') {
+            // Also login to AdminContext for backward compatibility
+            try {
+              await loginAdmin(result.user.phone, {
+                name: result.user.name,
+                email: result.user.email,
+                phone: result.user.phone
+              });
+            } catch (adminError) {
+              console.log('AdminContext login failed, but proceeding with main login');
+            }
+          }
+          
+          onLogin(result.user.userType, {
+            id: result.user.id,
+            name: result.user.name,
+            email: result.user.email,
+            phone: result.user.phone,
+            userType: result.user.userType,
+            abhaProfile: result.user.abhaProfile,
+            specialty: result.user.specialty,
+            village: result.user.village,
+            organization: result.user.organization
           });
         } else {
-          alert('Access denied. Please contact system administrator.');
+          alert(result.error || 'OTP verification failed');
+        }
+      } else if (loginMethod === 'email' && email && password && activeTab === 'admin') {
+        // Admin email login
+        const result = await authService.authenticateAdmin(email, password);
+        
+        if (result.success && result.user) {
+          try {
+            await loginAdmin(email, {
+              name: result.user.name,
+              email: result.user.email,
+              phone: result.user.phone
+            }, password);
+          } catch (adminError) {
+            console.log('AdminContext login failed, but proceeding with main login');
+          }
+          
+          onLogin('admin', {
+            id: result.user.id,
+            name: result.user.name,
+            email: result.user.email,
+            phone: result.user.phone,
+            userType: 'admin',
+            organization: result.user.organization
+          });
+        } else {
+          alert(result.error || 'Admin authentication failed');
         }
       } else {
-        // Regular user login simulation
-        setTimeout(() => {
-          onLogin(activeTab, {
-            phone: phoneNumber,
-            email: email,
-            userType: activeTab,
-            name: `${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} User`
-          });
-        }, 1000);
+        alert('Please complete the authentication process');
       }
+    } catch (error: any) {
+      alert(error.message || 'Login failed');
     } finally {
       setIsLoading(false);
     }
