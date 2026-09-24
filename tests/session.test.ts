@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createSession, getSession } from "../api/_lib/session";
+import { createSession, getSession, sessionCookie } from "../api/_lib/session";
 
 describe("session security",()=>{
   it("round-trips a signed session cookie",()=>{
@@ -10,7 +10,7 @@ describe("session security",()=>{
   it("rejects a tampered cookie",()=>{
     const session=createSession({userId:"u1",userType:"patient",name:"Test User"});
     const tampered=session.cookie.replace(/.$/,"x");
-    const request=new Request("https://example.test",{headers:{cookie:tampered}});
+    const request=new Request("https://example.test",{headers:{cookie:sessionCookie(tampered)}});
     expect(getSession(request)).toBeNull();
   });
 });
