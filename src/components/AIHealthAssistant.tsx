@@ -19,7 +19,7 @@ interface HealthContext {
 }
 
 export default function AIHealthAssistant() {
-  const { currentLanguage, getText } = useLanguage();
+  const { currentLanguage, t } = useLanguage();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
