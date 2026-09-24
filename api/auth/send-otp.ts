@@ -1,5 +1,6 @@
 import { json, methodNotAllowed } from '../_lib/response';
 import { sendVerification } from '../_lib/twilio';
+import { audit } from '../_lib/audit';
 
 export async function POST(request: Request): Promise<Response> {
   try {
@@ -8,6 +9,7 @@ export async function POST(request: Request): Promise<Response> {
       return json({ error: 'Phone number must be in E.164 format.' }, { status: 400 });
     }
     await sendVerification(phone);
+    await audit({ actorId: phone, actorRole: 'unknown', action: 'auth.otp.send', resource: 'authentication', outcome: 'success' });
     return json({ success: true, requiresOTP: true });
   } catch (error) {
     console.error('send-otp failed', error);
