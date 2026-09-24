@@ -1,21 +1,13 @@
-type DemoUser = {
-  name: string;
-  email: string;
-  health: {
-    heartRate: number;
-    bloodPressure: string;
-    medications: string[];
-    nextAppointment: string;
-  };
-};
+type DemoUser = Record<string, any>;
 
 const STORAGE_KEY = 'easymed_demo_users';
 
 export async function connectDB() {
   return {
-    collection: () => ({
+    collection: (_name: string) => ({
       toArray: async () => getDemoUsers(),
-      insertOne: async (user: DemoUser) => ({ insertedId: user.email })
+      insertOne: async (user: DemoUser) => ({ insertedId: user.email || Date.now().toString() }),
+      deleteMany: async (_query?: Record<string, unknown>) => ({ acknowledged: true, deletedCount: 0 })
     })
   };
 }
