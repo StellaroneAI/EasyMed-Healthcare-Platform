@@ -13,6 +13,23 @@ export async function POST(request: Request): Promise<Response> {
       return json({ error: 'Invalid or expired OTP.' }, { status: 401 });
     }
 
+    if (userType === 'admin') {
+      const adminPhone = process.env.ADMIN_PHONE;
+      if (!adminPhone || phone !== adminPhone) {
+        return json({ error: 'Administrator phone authentication is not enabled for this number.' }, { status: 403 });
+      }
+      const session = createSession({
+        userId: 'admin',
+        userType: 'admin',
+        name: process.env.ADMIN_NAME || 'EasyMed Administrator',
+        phone,
+        role: 'admin',
+      });
+      return json({ success: true, user: { id: 'admin', name: process.env.ADMIN_NAME || 'EasyMed Administrator', phone, userType: 'admin', role: 'admin' } }, {
+        headers: { 'Set-Cookie': sessionCookie(session) },
+      });
+    }
+
     const db = await getDb();
     const collection = userType === 'doctor' ? 'doctors' : userType === 'asha' ? 'ashaworkers' : 'patients';
     const phoneField = 'phone';
