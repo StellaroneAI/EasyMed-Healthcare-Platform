@@ -35,7 +35,7 @@ const DEFAULT_PERMISSIONS = {
 };
 
 function mapAdmin(data: any): AdminUser {
-  const role = data.user.role === 'super_admin' ? 'super_admin' : 'admin';
+  const role = ['super_admin','admin','manager','coordinator'].includes(data.user.role) ? data.user.role : 'admin';
   return {
     id: data.user.userId || data.user.id,
     name: data.user.name || 'EasyMed Administrator',
