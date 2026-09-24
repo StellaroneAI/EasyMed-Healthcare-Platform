@@ -1,6 +1,6 @@
-import { getSession } from './session';
-import { json } from './response';
-import type { Session } from './session';
+import { getSession } from './session.js';
+import { json } from './response.js';
+import type { Session } from './session.js';
 
 export function requireSession(request: Request): Session | Response {
   const session = getSession(request);
