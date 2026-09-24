@@ -23,6 +23,7 @@ export default function EnhancedVoiceAssistant({
   const [isEnabled, setIsEnabled] = useState(true);
 
   const { currentLanguage, t } = useLanguage();
+  const getTranslation = (key: string) => t(key as any);
 
   // Initialize and show greeting
   useEffect(() => {
