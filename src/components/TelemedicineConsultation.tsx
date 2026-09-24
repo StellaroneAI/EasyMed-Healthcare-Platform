@@ -129,10 +129,7 @@ export default function TelemedicineConsultation() {
 
     setIsLoading(true);
     try {
-      const tokens = localStorage.getItem('abha_tokens');
-      if (tokens) {
-        const { accessToken } = JSON.parse(tokens);
-        const sessionsData = await abhaService.getTelemedicineSessions(abhaProfile.healthId, accessToken);
+      const sessionsData = await abhaService.getTelemedicineSessions(abhaProfile.healthId, '');
         setSessions(sessionsData);
       }
     } catch (error) {
@@ -147,17 +144,11 @@ export default function TelemedicineConsultation() {
 
     setIsLoading(true);
     try {
-      const tokens = localStorage.getItem('abha_tokens');
-      if (tokens) {
-        const { accessToken } = JSON.parse(tokens);
-        
-        const session = await abhaService.scheduleTelemedicine(
+      const session = await abhaService.scheduleTelemedicine(
           abhaProfile.healthId,
           selectedDoctor,
           'VIDEO',
-          new Date(`${appointmentDate}T${appointmentTime}`).toISOString(),
-          accessToken
-        );
+          new Date(`${appointmentDate}T${appointmentTime}`).toISOString(), '');
         
         if (session) {
           await loadTelemedicineSessions();
@@ -184,10 +175,7 @@ export default function TelemedicineConsultation() {
     if (!abhaProfile) return;
 
     try {
-      const tokens = localStorage.getItem('abha_tokens');
-      if (tokens) {
-        const { accessToken } = JSON.parse(tokens);
-        const sessionData = await abhaService.joinTelemedicineSession(sessionId, accessToken);
+      const sessionData = await abhaService.joinTelemedicineSession(sessionId, '');
         
         if (sessionData && sessionData.meetingUrl) {
           window.open(sessionData.meetingUrl, '_blank');
