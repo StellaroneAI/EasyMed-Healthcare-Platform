@@ -1,5 +1,5 @@
-import { getSession } from '../_lib/session';
-import { json, methodNotAllowed } from '../_lib/response';
+import { getSession } from '../_lib/session.js';
+import { json, methodNotAllowed } from '../_lib/response.js';
 
 export async function GET(request: Request): Promise<Response> {
   const session = getSession(request);
