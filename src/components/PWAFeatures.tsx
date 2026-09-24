@@ -68,7 +68,7 @@ export default function PWAFeatures() {
           { action: 'taken', title: 'Taken' },
           { action: 'snooze', title: 'Snooze 10min' }
         ]
-      });
+      } as NotificationOptions);
 
       notification.onclick = () => {
         window.focus();
