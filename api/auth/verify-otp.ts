@@ -61,7 +61,7 @@ export async function POST(request: Request): Promise<Response> {
         updatedAt: new Date(),
       };
       await userCollection.insertOne(record);
-      user = record;
+      user = record as any;
     }
 
     const userId = String(user.patientId || user.doctorId || user.ashaId || user._id);
