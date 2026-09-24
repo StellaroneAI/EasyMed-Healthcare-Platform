@@ -22,11 +22,12 @@ export default function ABHAIntegration({ onABHAConnected }: ABHAIntegrationProp
   const [password, setPassword] = useState('');
   const [txnId, setTxnId] = useState('');
 
-  // Load saved ABHA profile on component mount
+  // Load ABHA profile from the authenticated server session.
   useEffect(() => {
-    fetch('/api/abha/session').then(r => r.ok ? r.json() : null).then(data => {
-      if (data?.profile) setABHAProfile(data.profile);
-    }).catch(() => undefined);
+    fetch('/api/abha/session')
+      .then(response => response.ok ? response.json() : null)
+      .then(data => { if (data?.profile) setABHAProfile(data.profile); })
+      .catch(() => undefined);
   }, []);
 
   // ABHA Translations
@@ -134,7 +135,7 @@ export default function ABHAIntegration({ onABHAConnected }: ABHAIntegrationProp
     try {
       const profile = await abhaService.verifyOTPAndCreateABHA(txnId, otp);
       setABHAProfile(profile);
-      fetch('/api/abha/session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ accessToken: '', profile }) }).catch(() => undefined);
+      await fetch('/api/abha/session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ profile }) });
       setShowABHASetup(false);
       onABHAConnected?.(profile);
     } catch (error) {
@@ -152,7 +153,7 @@ export default function ABHAIntegration({ onABHAConnected }: ABHAIntegrationProp
       const profile = await abhaService.getABHAProfile(healthId);
       
       setABHAProfile(profile);
-      await fetch('/api/abha/session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ accessToken: authResult.accessToken, refreshToken: authResult.refreshToken, profile }) });
+      // loginWithABHA stores provider tokens server-side; only the profile is retained in component state.
       setShowABHASetup(false);
       onABHAConnected?.(profile);
     } catch (error) {
