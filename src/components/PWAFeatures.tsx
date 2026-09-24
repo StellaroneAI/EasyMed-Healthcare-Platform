@@ -58,7 +58,7 @@ export default function PWAFeatures() {
 
   const sendTestNotification = () => {
     if ('Notification' in window && Notification.permission === 'granted') {
-      const notification = new Notification('EasyMedPro Health Reminder', ({
+      const notification = new Notification('EasyMedPro Health Reminder', {
         body: 'Time to take your medication! 💊',
         icon: '/favicon.ico',
         badge: '/favicon.ico',
