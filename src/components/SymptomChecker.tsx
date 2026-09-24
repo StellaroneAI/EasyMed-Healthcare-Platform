@@ -19,7 +19,7 @@ interface DiagnosisResult {
 }
 
 export default function SymptomChecker() {
-  const { currentLanguage, getText } = useLanguage();
+  const { currentLanguage, t } = useLanguage();
   const [selectedSymptoms, setSelectedSymptoms] = useState<Symptom[]>([]);
   const [currentStep, setCurrentStep] = useState(1);
   const [diagnosisResult, setDiagnosisResult] = useState<DiagnosisResult | null>(null);

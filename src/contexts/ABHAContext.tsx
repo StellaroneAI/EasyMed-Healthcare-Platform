@@ -25,31 +25,28 @@ export function ABHAProvider({ children }: ABHAProviderProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load ABHA profile from localStorage on mount
+  // Load the ABHA connection state from the authenticated server session.
   useEffect(() => {
-    const savedProfile = localStorage.getItem('abha_profile');
-    if (savedProfile) {
-      try {
-        const profile = JSON.parse(savedProfile);
-        setABHAProfile(profile);
-      } catch (error) {
-        console.error('Failed to parse saved ABHA profile:', error);
-        localStorage.removeItem('abha_profile');
-      }
-    }
+    fetch('/api/abha/session')
+      .then(response => response.ok ? response.json() : null)
+      .then(data => { if (data?.profile) setABHAProfile(data.profile); })
+      .catch(() => undefined);
   }, []);
 
   const connectABHA = (profile: ABHAProfile) => {
     setABHAProfile(profile);
-    localStorage.setItem('abha_profile', JSON.stringify(profile));
+    fetch('/api/abha/session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ profile }),
+    }).catch(() => undefined);
     setError(null);
   };
 
   const disconnectABHA = () => {
     setABHAProfile(null);
     setHealthRecords([]);
-    localStorage.removeItem('abha_profile');
-    localStorage.removeItem('abha_tokens');
+    fetch('/api/abha/session', { method: 'DELETE' }).catch(() => undefined);
     setError(null);
   };
 
@@ -59,18 +56,11 @@ export function ABHAProvider({ children }: ABHAProviderProps) {
       return;
     }
 
-    const tokens = localStorage.getItem('abha_tokens');
-    if (!tokens) {
-      setError('ABHA authentication tokens not found');
-      return;
-    }
-
     setIsLoading(true);
     setError(null);
 
     try {
-      const { accessToken } = JSON.parse(tokens);
-      const records = await abhaService.getHealthRecords(abhaProfile.healthId, accessToken);
+      const records = await abhaService.getHealthRecords(abhaProfile.healthId, '');
       setHealthRecords(records);
     } catch (error) {
       console.error('Failed to fetch health records:', error);

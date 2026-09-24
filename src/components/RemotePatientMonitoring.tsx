@@ -40,80 +40,28 @@ export default function RemotePatientMonitoring() {
   const [isRecording, setIsRecording] = useState(false);
 
 
-  // Mock devices data
-  const mockDevices: MonitoringDevice[] = [
-    {
-      id: 'device1',
-      type: 'BLOOD_PRESSURE',
-      name: 'EasyMed BP Monitor',
-      batteryLevel: 85,
-      isConnected: true,
-      lastSync: new Date(Date.now() - 30 * 60 * 1000).toISOString()
-    },
-    {
-      id: 'device2',
-      type: 'PULSE_OXIMETER',
-      name: 'EasyMed Pulse Oximeter',
-      batteryLevel: 92,
-      isConnected: true,
-      lastSync: new Date(Date.now() - 15 * 60 * 1000).toISOString()
-    },
-    {
-      id: 'device3',
-      type: 'GLUCOMETER',
-      name: 'EasyMed Glucometer',
-      batteryLevel: 45,
-      isConnected: false,
-      lastSync: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      id: 'device4',
-      type: 'THERMOMETER',
-      name: 'EasyMed Digital Thermometer',
-      batteryLevel: 78,
-      isConnected: true,
-      lastSync: new Date(Date.now() - 10 * 60 * 1000).toISOString()
-    }
-  ];
-
-  // Mock readings data
-  const mockReadings: PatientReading[] = [
-    {
-      id: 'reading1',
-      timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-      vitals: {
-        heartRate: 72,
-        bloodPressure: { systolic: 120, diastolic: 80 },
-        temperature: 98.6,
-        oxygenSaturation: 98,
-        respiratoryRate: 16
-      },
-      deviceUsed: 'EasyMed BP Monitor',
-      alerts: []
-    },
-    {
-      id: 'reading2',
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-      vitals: {
-        heartRate: 85,
-        bloodPressure: { systolic: 140, diastolic: 90 },
-        temperature: 99.2,
-        oxygenSaturation: 96,
-        respiratoryRate: 18,
-        bloodGlucose: 110
-      },
-      deviceUsed: 'EasyMed Glucometer',
-      alerts: ['Blood pressure slightly elevated', 'Temperature slightly high']
-    }
-  ];
-
   useEffect(() => {
-    setDevices(mockDevices);
-    setReadings(mockReadings);
-    if (mockReadings.length > 0) {
-      setCurrentVitals(mockReadings[0].vitals);
+    if (!isABHAConnected) {
+      setDevices([]);
+      setReadings([]);
+      setCurrentVitals(null);
+      return;
     }
-  }, []);
+
+    fetch('/api/vitals/me', { credentials: 'include' })
+      .then(async response => response.ok ? response.json() : { readings: [], devices: [] })
+      .then(data => {
+        const nextReadings = Array.isArray(data.readings) ? data.readings : [];
+        setReadings(nextReadings);
+        setDevices(Array.isArray(data.devices) ? data.devices : []);
+        setCurrentVitals(nextReadings[0]?.vitals || null);
+      })
+      .catch(() => {
+        setReadings([]);
+        setDevices([]);
+        setCurrentVitals(null);
+      });
+  }, [isABHAConnected]);
 
   const getDeviceIcon = (type: string) => {
     switch (type) {
@@ -164,17 +112,18 @@ export default function RemotePatientMonitoring() {
   const handleSyncDevice = async (deviceId: string) => {
     setIsRecording(true);
     try {
-      // Simulate device sync
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Update device last sync time
-      setDevices(prev => prev.map(device => 
-        device.id === deviceId 
-          ? { ...device, lastSync: new Date().toISOString() }
-          : device
-      ));
-    } catch (error) {
-      console.error('Failed to sync device:', error);
+      const response = await fetch('/api/vitals/me', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deviceId }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (Array.isArray(data.readings)) setReadings(data.readings);
+        if (Array.isArray(data.devices)) setDevices(data.devices);
+        if (Array.isArray(data.readings) && data.readings[0]) setCurrentVitals(data.readings[0].vitals);
+      }
     } finally {
       setIsRecording(false);
     }

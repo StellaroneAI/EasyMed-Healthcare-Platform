@@ -68,7 +68,7 @@ export default function PWAFeatures() {
           { action: 'taken', title: 'Taken' },
           { action: 'snooze', title: 'Snooze 10min' }
         ]
-      });
+      } as NotificationOptions);
 
       notification.onclick = () => {
         window.focus();
@@ -80,7 +80,7 @@ export default function PWAFeatures() {
   const enableBackgroundSync = () => {
     if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
       navigator.serviceWorker.ready.then(registration => {
-        return registration.sync.register('background-health-sync');
+        return (registration as ServiceWorkerRegistration & { sync: { register: (tag: string) => Promise<void> } }).sync.register('background-health-sync');
       });
     }
   };

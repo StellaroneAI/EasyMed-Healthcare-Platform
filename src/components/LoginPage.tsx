@@ -226,7 +226,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
 
     setIsLoading(true);
     try {
-      const result = await authService.verifyOTPAndLogin(phoneNumber, otp);
+      const result = await authService.verifyOTPAndLogin(phoneNumber, otp, activeTab);
       
       if (result.success && result.user) {
         const successMsg = successMessages[currentLanguage as keyof typeof successMessages] || successMessages.english;

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import PatientDashboard from './components/dashboards/PatientDashboard';
+import PatientDashboard from './pages/PatientDashboard';
 import ASHADashboard from './components/dashboards/ASHADashboard';
 import DoctorDashboard from './components/dashboards/DoctorDashboard';
 import AdminDashboard from './components/dashboards/AdminDashboard';
@@ -60,7 +60,7 @@ function AppContent() {
       if (identifier) {
         setTimeout(async () => {
           try {
-            await loginAdmin(identifier, userInfo, 'dummy123');
+            await loginAdmin(identifier, userInfo);
           } catch (error) {
             console.log('Admin context login error:', error);
           }

@@ -8,7 +8,6 @@ interface ImportMetaEnv {
   readonly VITE_FACILITY_ID: string
   readonly VITE_HIP_ID: string
   readonly VITE_HIU_ID: string
-  readonly VITE_OPENAI_API_KEY: string
   readonly VITE_DOCTOR_NAME: string
 }
 

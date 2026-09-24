@@ -28,7 +28,7 @@ interface LocationData {
 }
 
 export default function EmergencySystem() {
-  const { currentLanguage, getText } = useLanguage();
+  const { currentLanguage } = useLanguage();
   const [isEmergencyMode, setIsEmergencyMode] = useState(false);
   const [currentLocation, setCurrentLocation] = useState<LocationData | null>(null);
   const [emergencyContacts, setEmergencyContacts] = useState<EmergencyContact[]>([]);
@@ -59,63 +59,9 @@ export default function EmergencySystem() {
     return () => clearInterval(interval);
   }, [emergencyCountdown]);
 
-  const loadEmergencyContacts = () => {
-    const contacts: EmergencyContact[] = [
-      {
-        id: 'contact1',
-        name: 'Dr. Sarah Johnson',
-        relationship: 'Primary Doctor',
-        phone: '+91-9876543210',
-        isPrimary: true
-      },
-      {
-        id: 'contact2',
-        name: 'John Smith',
-        relationship: 'Son',
-        phone: '+91-9876543211',
-        isPrimary: false
-      },
-      {
-        id: 'contact3',
-        name: 'Emergency Services',
-        relationship: 'Emergency',
-        phone: '108',
-        isPrimary: true
-      },
-      {
-        id: 'contact4',
-        name: 'Mary Johnson',
-        relationship: 'Daughter',
-        phone: '+91-9876543212',
-        isPrimary: false
-      }
-    ];
-    setEmergencyContacts(contacts);
-  };
+  const loadEmergencyContacts = () => setEmergencyContacts([]);
 
-  const loadRecentAlerts = () => {
-    const alerts: EmergencyAlert[] = [
-      {
-        id: 'alert1',
-        type: 'vital_signs',
-        severity: 'medium',
-        message: 'Blood pressure reading above normal range (145/95)',
-        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-        resolved: true,
-        responders: ['Dr. Sarah Johnson']
-      },
-      {
-        id: 'alert2',
-        type: 'medication',
-        severity: 'low',
-        message: 'Missed morning medication reminder',
-        timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000), // 6 hours ago
-        resolved: true,
-        responders: ['John Smith']
-      }
-    ];
-    setRecentAlerts(alerts);
-  };
+  const loadRecentAlerts = () => setRecentAlerts([]);
 
   const getCurrentLocation = () => {
     setIsLocating(true);
@@ -147,13 +93,7 @@ export default function EmergencySystem() {
         },
         (error) => {
           console.error('Error getting location:', error);
-          // Use fallback location for demo
-          setCurrentLocation({
-            lat: 12.9716,
-            lng: 77.5946,
-            address: 'Bangalore, Karnataka, India',
-            accuracy: 100
-          });
+          setCurrentLocation(null);
           setIsLocating(false);
         },
         {
@@ -168,9 +108,7 @@ export default function EmergencySystem() {
   };
 
   const reverseGeocode = async (lat: number, lng: number): Promise<string> => {
-    // Simulate reverse geocoding API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    return `Near ${lat.toFixed(4)}, ${lng.toFixed(4)} - Bangalore, Karnataka`;
+    return `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
   };
 
   const startEmergencyCountdown = (type: string) => {
@@ -219,7 +157,7 @@ export default function EmergencySystem() {
     const primaryContacts = emergencyContacts.filter(c => c.isPrimary);
     
     for (const contact of primaryContacts) {
-      await sendEmergencyNotification(contact, newAlert);
+      await sendEmergencyNotification();
     }
 
     // Start continuous location sharing
@@ -228,7 +166,7 @@ export default function EmergencySystem() {
     // Announce emergency alert
     if ('speechSynthesis' in window) {
       const utterance = new SpeechSynthesisUtterance(
-        `Emergency alert sent. Help is on the way. Your location has been shared with emergency contacts.`
+        `Emergency mode activated. Please contact local emergency services directly.`
       );
       utterance.rate = 1.0;
       utterance.volume = 1.0;
@@ -247,21 +185,8 @@ export default function EmergencySystem() {
     return messages[type as keyof typeof messages] || 'Emergency situation reported.';
   };
 
-  const sendEmergencyNotification = async (contact: EmergencyContact, alert: EmergencyAlert) => {
-    // Simulate sending notification
-    console.log(`Sending emergency notification to ${contact.name} (${contact.phone})`);
-    
-    const message = `
-🚨 EMERGENCY ALERT 🚨
-${alert.message}
-Time: ${alert.timestamp.toLocaleString()}
-${currentLocation ? `Location: ${currentLocation.address}` : 'Location unavailable'}
-Patient: [Patient Name]
-Contact immediately if you receive this message.
-    `;
-
-    // In a real app, this would send SMS/call through emergency services API
-    await new Promise(resolve => setTimeout(resolve, 1000));
+  const sendEmergencyNotification = async () => {
+    throw new Error('Emergency notification provider is not configured.');
   };
 
   const startLocationTracking = () => {

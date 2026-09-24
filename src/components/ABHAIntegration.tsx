@@ -22,12 +22,12 @@ export default function ABHAIntegration({ onABHAConnected }: ABHAIntegrationProp
   const [password, setPassword] = useState('');
   const [txnId, setTxnId] = useState('');
 
-  // Load saved ABHA profile on component mount
+  // Load ABHA profile from the authenticated server session.
   useEffect(() => {
-    const savedProfile = localStorage.getItem('abha_profile');
-    if (savedProfile) {
-      setABHAProfile(JSON.parse(savedProfile));
-    }
+    fetch('/api/abha/session')
+      .then(response => response.ok ? response.json() : null)
+      .then(data => { if (data?.profile) setABHAProfile(data.profile); })
+      .catch(() => undefined);
   }, []);
 
   // ABHA Translations
@@ -135,7 +135,7 @@ export default function ABHAIntegration({ onABHAConnected }: ABHAIntegrationProp
     try {
       const profile = await abhaService.verifyOTPAndCreateABHA(txnId, otp);
       setABHAProfile(profile);
-      localStorage.setItem('abha_profile', JSON.stringify(profile));
+      await fetch('/api/abha/session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ profile }) });
       setShowABHASetup(false);
       onABHAConnected?.(profile);
     } catch (error) {
@@ -150,11 +150,10 @@ export default function ABHAIntegration({ onABHAConnected }: ABHAIntegrationProp
     setIsConnecting(true);
     try {
       const authResult = await abhaService.loginWithABHA(healthId, password);
-      const profile = await abhaService.getABHAProfile(healthId, authResult.accessToken);
+      const profile = await abhaService.getABHAProfile(healthId);
       
       setABHAProfile(profile);
-      localStorage.setItem('abha_profile', JSON.stringify(profile));
-      localStorage.setItem('abha_tokens', JSON.stringify(authResult));
+      // loginWithABHA stores provider tokens server-side; only the profile is retained in component state.
       setShowABHASetup(false);
       onABHAConnected?.(profile);
     } catch (error) {
@@ -166,12 +165,8 @@ export default function ABHAIntegration({ onABHAConnected }: ABHAIntegrationProp
   const loadHealthRecords = async () => {
     if (!abhaProfile) return;
     
-    const tokens = localStorage.getItem('abha_tokens');
-    if (!tokens) return;
-    
-    const { accessToken } = JSON.parse(tokens);
     try {
-      const records = await abhaService.getHealthRecords(abhaProfile.healthId, accessToken);
+      const records = await abhaService.getHealthRecords(abhaProfile.healthId, '');
       setHealthRecords(records);
     } catch (error) {
       console.error('Health records fetch error:', error);

@@ -99,13 +99,9 @@ export interface HealthScore {
 
 class ABHAService {
   private baseUrl: string;
-  private clientId: string;
-  private clientSecret: string;
 
   constructor() {
-    this.baseUrl = import.meta.env.VITE_ABDM_BASE_URL || 'https://abhasbx.abdm.gov.in';
-    this.clientId = import.meta.env.VITE_ABDM_CLIENT_ID || '';
-    this.clientSecret = import.meta.env.VITE_ABDM_CLIENT_SECRET || '';
+    this.baseUrl = '/api/abha/proxy?path=';
   }
 
   // Step 1: Generate ABHA Number using Aadhaar
@@ -115,7 +111,6 @@ class ABHAService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
           aadhaar: aadhaarNumber,
@@ -141,7 +136,6 @@ class ABHAService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
           txnId: txnId,
@@ -167,7 +161,6 @@ class ABHAService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
           mobile: mobile
@@ -186,13 +179,11 @@ class ABHAService {
   }
 
   // Get ABHA Profile
-  async getABHAProfile(healthId: string, accessToken: string): Promise<ABHAProfile> {
+  async getABHAProfile(healthId: string, _accessToken?: string): Promise<ABHAProfile> {
     try {
       const response = await fetch(`${this.baseUrl}/v2/account/profile`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'X-CM-ID': this.clientId,
           'X-HIP-ID': healthId
         }
       });
@@ -215,7 +206,6 @@ class ABHAService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
           healthid: healthId,
@@ -227,7 +217,9 @@ class ABHAService {
         throw new Error('Failed to login with ABHA');
       }
 
-      return await response.json();
+      const authResult = await response.json();
+      await fetch('/api/abha/session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(authResult) });
+      return authResult;
     } catch (error) {
       console.error('ABHA login error:', error);
       throw error;
@@ -235,13 +227,11 @@ class ABHAService {
   }
 
   // Fetch Health Records
-  async getHealthRecords(healthId: string, accessToken: string): Promise<ABHAHealthRecord[]> {
+  async getHealthRecords(healthId: string, _accessToken?: string): Promise<ABHAHealthRecord[]> {
     try {
       const response = await fetch(`${this.baseUrl}/v2/patients/health-records`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'X-CM-ID': this.clientId,
           'X-HIP-ID': healthId
         }
       });
@@ -264,13 +254,12 @@ class ABHAService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
           consent: {
             purpose: purpose,
             patient: { id: healthId },
-            hiu: { id: this.clientId },
+            hiu: { id: '' },
             requester: { name: 'EasyMed', identifier: { value: 'easymed.in' } },
             hiTypes: dataTypes,
             permission: {
@@ -304,7 +293,6 @@ class ABHAService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
           patientId: healthId,
@@ -326,7 +314,6 @@ class ABHAService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
           location: location,
@@ -351,15 +338,13 @@ class ABHAService {
   async addFamilyMember(
     primaryHealthId: string, 
     memberData: Omit<ABHAFamilyMember, 'isLinked' | 'consentGiven'>,
-    accessToken: string
+    _accessToken?: string
   ): Promise<boolean> {
     try {
       const response = await fetch(`${this.baseUrl}/v2/family/add-member`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-          'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
           primaryHealthId,
@@ -375,13 +360,11 @@ class ABHAService {
   }
 
   // Get Family Members
-  async getFamilyMembers(healthId: string, accessToken: string): Promise<ABHAFamilyMember[]> {
+  async getFamilyMembers(healthId: string, _accessToken?: string): Promise<ABHAFamilyMember[]> {
     try {
       const response = await fetch(`${this.baseUrl}/v2/family/members`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'X-CM-ID': this.clientId,
           'X-HIP-ID': healthId
         }
       });
@@ -401,15 +384,13 @@ class ABHAService {
   async linkFamilyMemberABHA(
     primaryHealthId: string,
     memberHealthId: string,
-    accessToken: string
+    _accessToken?: string
   ): Promise<boolean> {
     try {
       const response = await fetch(`${this.baseUrl}/v2/family/link`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-          'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
           primaryHealthId,
@@ -432,15 +413,13 @@ class ABHAService {
     doctorId: string,
     sessionType: 'VIDEO' | 'AUDIO' | 'CHAT',
     scheduledTime: string,
-    accessToken: string
+    _accessToken?: string
   ): Promise<TelemedicineSession | null> {
     try {
       const response = await fetch(`${this.baseUrl}/v2/telemedicine/schedule`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-          'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
           patientId: patientHealthId,
@@ -462,13 +441,11 @@ class ABHAService {
   }
 
   // Get Telemedicine Sessions
-  async getTelemedicineSessions(healthId: string, accessToken: string): Promise<TelemedicineSession[]> {
+  async getTelemedicineSessions(healthId: string, _accessToken?: string): Promise<TelemedicineSession[]> {
     try {
       const response = await fetch(`${this.baseUrl}/v2/telemedicine/sessions`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'X-CM-ID': this.clientId,
           'X-HIP-ID': healthId
         }
       });
@@ -485,13 +462,11 @@ class ABHAService {
   }
 
   // Join Telemedicine Session
-  async joinTelemedicineSession(sessionId: string, accessToken: string): Promise<{ meetingUrl: string } | null> {
+  async joinTelemedicineSession(sessionId: string, _accessToken?: string): Promise<{ meetingUrl: string } | null> {
     try {
       const response = await fetch(`${this.baseUrl}/v2/telemedicine/join/${sessionId}`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'X-CM-ID': this.clientId,
         }
       });
 
@@ -513,7 +488,7 @@ class ABHAService {
     healthId: string,
     claimData: Omit<InsuranceClaim, 'claimId' | 'status' | 'submissionDate'>,
     documents: File[],
-    accessToken: string
+    _accessToken?: string
   ): Promise<InsuranceClaim | null> {
     try {
       const formData = new FormData();
@@ -527,8 +502,6 @@ class ABHAService {
       const response = await fetch(`${this.baseUrl}/v2/insurance/claims/submit`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'X-CM-ID': this.clientId,
         },
         body: formData
       });
@@ -545,13 +518,11 @@ class ABHAService {
   }
 
   // Get Insurance Claims
-  async getInsuranceClaims(healthId: string, accessToken: string): Promise<InsuranceClaim[]> {
+  async getInsuranceClaims(healthId: string, _accessToken?: string): Promise<InsuranceClaim[]> {
     try {
       const response = await fetch(`${this.baseUrl}/v2/insurance/claims`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'X-CM-ID': this.clientId,
           'X-HIP-ID': healthId
         }
       });
@@ -572,15 +543,13 @@ class ABHAService {
     healthId: string,
     policyNumber: string,
     insuranceProvider: string,
-    accessToken: string
+    _accessToken?: string
   ): Promise<{ eligible: boolean; coverageAmount?: number; policyStatus?: string }> {
     try {
       const response = await fetch(`${this.baseUrl}/v2/insurance/eligibility`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-          'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
           healthId,
@@ -603,14 +572,12 @@ class ABHAService {
   // === AI HEALTH SCORING ===
 
   // Generate Health Score
-  async generateHealthScore(healthId: string, accessToken: string): Promise<HealthScore | null> {
+  async generateHealthScore(healthId: string, _accessToken?: string): Promise<HealthScore | null> {
     try {
       const response = await fetch(`${this.baseUrl}/v2/ai/health-score`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-          'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
           healthId
@@ -629,13 +596,11 @@ class ABHAService {
   }
 
   // Get Health Insights
-  async getHealthInsights(healthId: string, accessToken: string): Promise<string[]> {
+  async getHealthInsights(healthId: string, _accessToken?: string): Promise<string[]> {
     try {
       const response = await fetch(`${this.baseUrl}/v2/ai/insights`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'X-CM-ID': this.clientId,
           'X-HIP-ID': healthId
         }
       });
@@ -659,15 +624,13 @@ class ABHAService {
     healthId: string,
     location: { latitude: number; longitude: number },
     emergencyType: 'MEDICAL' | 'ACCIDENT' | 'CARDIAC' | 'STROKE' | 'OTHER',
-    accessToken: string
+    _accessToken?: string
   ): Promise<{ emergencyId: string; estimatedArrival: number } | null> {
     try {
       const response = await fetch(`${this.baseUrl}/v2/emergency/108`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-          'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
           healthId,
@@ -692,15 +655,13 @@ class ABHAService {
   async shareEmergencyHealthInfo(
     healthId: string,
     emergencyContacts: string[],
-    accessToken: string
+    _accessToken?: string
   ): Promise<boolean> {
     try {
       const response = await fetch(`${this.baseUrl}/v2/emergency/share-info`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-          'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
           healthId,
