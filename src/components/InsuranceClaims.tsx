@@ -173,9 +173,9 @@ export default function InsuranceClaims() {
           }))
         };
 
-        const claimId = await abhaService.submitInsuranceClaim(claimData, '');
+        const claim = await abhaService.submitInsuranceClaim(abhaProfile.healthId, claimData, newClaim.documents);
         
-        if (claimId) {
+        if (claim) {
           await loadInsuranceClaims();
           setShowNewClaim(false);
           resetClaimForm();
@@ -195,7 +195,9 @@ export default function InsuranceClaims() {
     try {
       const eligibility = await abhaService.checkInsuranceEligibility(
           abhaProfile.healthId,
-          newClaim.treatmentType || 'General Consultation', '');
+          newClaim.treatmentType || 'General Consultation',
+          'Unknown',
+        );
         setEligibilityData(eligibility);
         setShowEligibilityCheck(true);
       }
