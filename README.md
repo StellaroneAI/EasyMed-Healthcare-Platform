@@ -1,112 +1,61 @@
-EasyMed - AI-Powered Mobile Healthcare Platform for India
+# EasyMedPro
 
-Overview
+EasyMedPro is a mobile-first healthcare platform for India built with React, Vite and Tailwind CSS. It supports patient, doctor, ASHA and administrator workflows, multilingual experiences, telehealth foundations, AI-assisted health experiences, and planned ABDM/ABHA integrations.
 
-EasyMed is a next-generation, AI-integrated mobile-first healthcare platform specifically designed for India's diverse and evolving healthcare landscape. The platform combines advanced AI technology with comprehensive healthcare management tools to provide patients, families, and healthcare providers with seamless digital health experiences.
+## Architecture
 
-🌟 Key Features
+- **Frontend:** React + Vite + Tailwind CSS
+- **Backend:** Vercel Functions under `/api`
+- **Database:** MongoDB
+- **Authentication:** Twilio Verify for OTP + secure HttpOnly session cookies
+- **AI:** OpenAI accessed only from server-side API functions
+- **Deployment:** Vercel
+- **Node:** 22.x
 
-🤖 AI-Powered Health Assistant
-Advanced Symptom Analysis: Natural language processing for symptom evaluation
-Health Risk Assessment: Predictive analytics for chronic illness monitoring
-Personalized Health Insights: AI-driven recommendations based on patient data
-Medical Content Generation: Contextual health information in multiple languages
+## Security model
 
-🗣️ Multilingual Voice Assistant
+Server-only secrets must never use the `VITE_` prefix. OpenAI, Twilio, MongoDB, ABDM credentials, administrator credentials and session secrets are read only by server functions.
 
-One-Click Voice Commands: Floating voice button for instant access
-4 Language Support: English, Hindi, Tamil, Telugu with native voice synthesis
-Natural Language Navigation: Voice commands for all app sections
-Healthcare-Specific Commands: "Call 108", "Check symptoms", "Book appointment"
-Smart Intent Recognition: AI-powered understanding of voice inputs
+Authentication sessions use an HttpOnly, Secure, SameSite cookie. Patient/doctor/ASHA records are intended to be accessed through authenticated server APIs rather than directly from browser-side database clients.
 
-📱 Comprehensive Healthcare Management
+## Local development
 
-Patient Dashboard: Real-time health overview with key metrics
-Appointment Booking: Smart scheduling with healthcare providers
-Health Records: Secure digital storage of medical history
-Family Health Management: Multi-member health profiles under one account
-Prescription Management: Digital prescriptions with medication reminders
-Emergency Services: One-tap access to 108 ambulance services
-
-EasyMed is a React + Tailwind CSS-based MVP for an intelligent healthcare booking and assistant platform.
-
-## 🚀 Getting Started
-
-<<<<<<< HEAD
-Install dependencies:
+1. Install Node 22.x.
+2. Install dependencies:
 
 ```bash
 npm install
 ```
 
-Run locally:
+3. Copy `.env.example` to `.env.local` and configure the required server variables.
+4. Start the app:
 
 ```bash
 npm run dev
-=======
+```
+
+5. Run the typecheck:
+
 ```bash
-npm install
-npm run dev   # or npm start if using Create React App
->>>>>>> f6d5ef3 (Initial EasyMed MVP commit)
+npm run typecheck
 ```
 
-## 📦 Deploy on Vercel
+## Production deployment
 
-<<<<<<< HEAD
-You can deploy this app on [Vercel](https://vercel.com/) by clicking:
+Connect the repository to Vercel and configure the environment variables from `.env.example` in the Vercel project settings. Do not commit real credentials.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/import/project)
+The frontend is built to `dist`; API functions are deployed from `api/`.
 
-Or manually:
-1. Push to GitHub.
-2. Connect your repo to Vercel.
-3. Set the build command to: `npm run build`
-4. Set the output directory to: `dist`
-=======
-1. Push this code to GitHub
-2. Go to [Vercel](https://vercel.com)
-3. Import your GitHub repo
-4. Use the following build settings:
+## Healthcare data
 
-- **Framework Preset**: Create React App
-- **Build Command**: `npm run build`
-- **Output Directory**: `build`
+EasyMedPro handles potentially sensitive health information. Production rollout requires appropriate authorization controls, audit logging, encryption, consent/data-retention controls, secure file storage, incident response, and applicable Indian privacy/digital-health compliance review.
 
-### SPA Routing Fix
+## Development principles
 
-We've included a `vercel.json` to handle all unmatched routes and send them to `index.html`:
-
-```json
-"routes": [
-  { "src": "/(.*)", "dest": "/" }
-]
-```
->>>>>>> f6d5ef3 (Initial EasyMed MVP commit)
-
----
-
-## 🛠 Tech Stack
-
-- React
-- Tailwind CSS
-- Lucide Icons
-- Vercel (Hosting)
-<<<<<<< HEAD
-
-Upcoming Features
-Telemedicine integration
-Wearable device connectivity
-Advanced AI diagnostics
-Blockchain health records
-IoT device integration
-Language Expansion
-Bengali language support
-Marathi language integration
-Punjabi voice commands
-Regional dialect support
-Multi-script text handling
-EasyMed - Transforming Healthcare Through AI Innovation
-Built with ❤️ for India's Healthcare Future
-=======
->>>>>>> f6d5ef3 (Initial EasyMed MVP commit)
+1. No secrets in client bundles.
+2. No client-side OTP generation.
+3. No hardcoded administrator passwords.
+4. No direct browser connections to MongoDB.
+5. Healthcare data access must be authenticated and authorized server-side.
+6. Keep demo/mock implementations isolated from production services.
+7. Add tests and CI quality gates before production release.
