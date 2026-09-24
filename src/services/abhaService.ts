@@ -186,7 +186,7 @@ class ABHAService {
   }
 
   // Get ABHA Profile
-  async getABHAProfile(healthId: string, accessToken: string): Promise<ABHAProfile> {
+  async getABHAProfile(healthId: string, _accessToken?: string): Promise<ABHAProfile> {
     try {
       const response = await fetch(`${this.baseUrl}/v2/account/profile`, {
         method: 'GET',
@@ -227,7 +227,9 @@ class ABHAService {
         throw new Error('Failed to login with ABHA');
       }
 
-      return await response.json();
+      const authResult = await response.json();
+      await fetch('/api/abha/session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(authResult) });
+      return authResult;
     } catch (error) {
       console.error('ABHA login error:', error);
       throw error;
