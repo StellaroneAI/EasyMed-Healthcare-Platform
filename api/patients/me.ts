@@ -7,7 +7,7 @@ export async function GET(request: Request): Promise<Response> {
   const auth = requireRole(request, ['patient', 'admin']);
   if (auth instanceof Response) return auth;
   const db = await getDb();
-  const patient = await db.collection('patients').findOne({ $or: [{ patientId: auth.userId }, { _id: auth.userId }] }, { projection: { _id: 0 } });
+  const patient = await db.collection('patients').findOne({ patientId: auth.userId }, { projection: { _id: 0 } });
   if (!patient) return json({ error: 'Patient record not found.' }, { status: 404 });
   await audit({ actorId: auth.userId, actorRole: auth.userType, action: 'patient.read', resource: `patient:${auth.userId}`, outcome: 'success' });
   return json({ patient });
