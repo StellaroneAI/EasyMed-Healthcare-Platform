@@ -4,7 +4,7 @@ import { requireEnv } from './env';
 const COOKIE_NAME = 'easymed_session';
 const MAX_AGE = 60 * 60 * 8;
 
-type Session = {
+export type Session = {
   userId: string;
   userType: 'patient' | 'asha' | 'doctor' | 'admin';
   name: string;
