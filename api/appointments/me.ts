@@ -30,9 +30,17 @@ export async function POST(request: Request): Promise<Response> {
     if (auth.userType === 'patient' && patientId !== auth.userId) return json({ error: 'Patients can only create their own appointments.' }, { status: 403 });
     if (auth.userType === 'doctor' && doctorId !== auth.userId) return json({ error: 'Doctors can only create appointments assigned to themselves.' }, { status: 403 });
     if (auth.userType === 'asha' && ashaId !== auth.userId) return json({ error: 'ASHA workers can only create appointments assigned to themselves.' }, { status: 403 });
+    const db = await getDb();
+    const [patient, doctor] = await Promise.all([
+      db.collection('patients').findOne({ patientId }),
+      db.collection('doctors').findOne({ doctorId, isActive: { $ne: false } }),
+    ]);
+    if (!patient || !doctor) return json({ error: 'Patient or doctor could not be verified.' }, { status: 404 });
+    if (ashaId && !(await db.collection('ashaworkers').findOne({ ashaId, isActive: { $ne: false } }))) {
+      return json({ error: 'ASHA worker could not be verified.' }, { status: 404 });
+    }
 
     const appointment = { id: crypto.randomUUID(), patientId, doctorId, ...(ashaId ? { ashaId } : {}), scheduledTime, type: clean(body?.type, 60) || 'consultation', status: 'scheduled', reason: clean(body?.reason, 500), notes: auth.userType === 'patient' ? '' : clean(body?.notes, 1000), createdBy: auth.userId, createdAt: new Date(), updatedAt: new Date() };
-    const db = await getDb();
     await db.collection('appointments').insertOne(appointment);
     await audit({ actorId: auth.userId, actorRole: auth.userType, action: 'appointments.create', resource: appointment.id, outcome: 'success' });
     return json({ success: true, appointment }, { status: 201 });
