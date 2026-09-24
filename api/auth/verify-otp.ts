@@ -34,6 +34,9 @@ export async function POST(request: Request): Promise<Response> {
     const collection = userType === 'doctor' ? 'doctors' : userType === 'asha' ? 'ashaworkers' : 'patients';
     const phoneField = 'phone';
     let user = await db.collection(collection).findOne({ [phoneField]: phone });
+    if (!user && userType !== 'patient') {
+      return json({ error: 'This healthcare role must be provisioned by an administrator.' }, { status: 403 });
+    }
     if (!user) {
       const id = `${userType}_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
       const record: Record<string, unknown> = {
