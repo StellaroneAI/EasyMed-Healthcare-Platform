@@ -1,8 +1,8 @@
 import OpenAI from 'openai';
-import { requireEnv } from '../_lib/env';
-import { getSession } from '../_lib/session';
-import { json, methodNotAllowed } from '../_lib/response';
-import { enforceRateLimit } from '../_lib/rateLimit';
+import { requireEnv } from '../_lib/env.js';
+import { getSession } from '../_lib/session.js';
+import { json, methodNotAllowed } from '../_lib/response.js';
+import { enforceRateLimit } from '../_lib/rateLimit.js';
 
 const voices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'] as const;
 

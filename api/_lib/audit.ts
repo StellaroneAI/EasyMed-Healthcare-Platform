@@ -1,4 +1,4 @@
-import { getDb } from './mongo';
+import { getDb } from './mongo.js';
 
 export type AuditEvent = {
   actorId: string;

@@ -1,7 +1,7 @@
-import { json, methodNotAllowed } from '../_lib/response';
-import { sendVerification } from '../_lib/twilio';
-import { audit } from '../_lib/audit';
-import { enforceRateLimit } from '../_lib/rateLimit';
+import { json, methodNotAllowed } from '../_lib/response.js';
+import { sendVerification } from '../_lib/twilio.js';
+import { audit } from '../_lib/audit.js';
+import { enforceRateLimit } from '../_lib/rateLimit.js';
 
 export async function POST(request: Request): Promise<Response> {
   try {

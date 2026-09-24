@@ -1,8 +1,8 @@
-import { requireEnv } from '../_lib/env';
-import { getSession } from '../_lib/session';
-import { json } from '../_lib/response';
-import { getDb } from '../_lib/mongo';
-import { decryptABHAToken } from '../_lib/abhaVault';
+import { requireEnv } from '../_lib/env.js';
+import { getSession } from '../_lib/session.js';
+import { json } from '../_lib/response.js';
+import { getDb } from '../_lib/mongo.js';
+import { decryptABHAToken } from '../_lib/abhaVault.js';
 
 const ALLOWED_PREFIX = '/v2/';
 

@@ -1,7 +1,7 @@
-import { json, methodNotAllowed } from '../_lib/response';
-import { getDb } from '../_lib/mongo';
-import { requireRole } from '../_lib/authz';
-import { audit } from '../_lib/audit';
+import { json, methodNotAllowed } from '../_lib/response.js';
+import { getDb } from '../_lib/mongo.js';
+import { requireRole } from '../_lib/authz.js';
+import { audit } from '../_lib/audit.js';
 
 export async function GET(request: Request): Promise<Response> {
   const session = requireRole(request, ['patient', 'admin']);

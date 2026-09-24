@@ -1,7 +1,7 @@
-import { getDb } from '../_lib/mongo';
-import { json, methodNotAllowed } from '../_lib/response';
-import { requireRole } from '../_lib/authz';
-import { audit } from '../_lib/audit';
+import { getDb } from '../_lib/mongo.js';
+import { json, methodNotAllowed } from '../_lib/response.js';
+import { requireRole } from '../_lib/authz.js';
+import { audit } from '../_lib/audit.js';
 
 const relationships = ['SPOUSE','CHILD','PARENT','SIBLING','OTHER'] as const;
 const genders = ['M','F','O'] as const;

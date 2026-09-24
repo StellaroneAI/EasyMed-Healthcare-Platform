@@ -1,4 +1,4 @@
-import { getDb } from './mongo';
+import { getDb } from './mongo.js';
 
 const WINDOW_MS = 10 * 60 * 1000;
 const MAX_ATTEMPTS = 5;

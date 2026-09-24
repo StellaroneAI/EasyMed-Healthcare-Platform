@@ -1,7 +1,7 @@
-import { getDb } from '../_lib/mongo';
-import { json, methodNotAllowed } from '../_lib/response';
-import { requireRole } from '../_lib/authz';
-import { audit } from '../_lib/audit';
+import { getDb } from '../_lib/mongo.js';
+import { json, methodNotAllowed } from '../_lib/response.js';
+import { requireRole } from '../_lib/authz.js';
+import { audit } from '../_lib/audit.js';
 
 const clean=(v:unknown,max=200)=>typeof v==='string'?v.trim().slice(0,max):'';
 export async function GET(request:Request):Promise<Response>{

@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import { requireEnv } from './env';
+import { requireEnv } from './env.js';
 
 const COOKIE_NAME = 'easymed_session';
 const MAX_AGE = 60 * 60 * 8;

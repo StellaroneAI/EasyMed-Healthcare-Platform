@@ -1,9 +1,9 @@
 import { scryptSync, timingSafeEqual } from 'node:crypto';
-import { requireEnv } from '../_lib/env';
-import { createSession, sessionCookie } from '../_lib/session';
-import { json, methodNotAllowed } from '../_lib/response';
-import { audit } from '../_lib/audit';
-import { enforceRateLimit } from '../_lib/rateLimit';
+import { requireEnv } from '../_lib/env.js';
+import { createSession, sessionCookie } from '../_lib/session.js';
+import { json, methodNotAllowed } from '../_lib/response.js';
+import { audit } from '../_lib/audit.js';
+import { enforceRateLimit } from '../_lib/rateLimit.js';
 
 function verifyPassword(password: string, stored: string): boolean {
   const [salt, encoded] = stored.split('$');
