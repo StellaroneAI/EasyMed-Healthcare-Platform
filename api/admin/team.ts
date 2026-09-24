@@ -1,7 +1,7 @@
-import { json, methodNotAllowed } from '../_lib/response';
-import { getDb } from '../_lib/mongo';
-import { requireSession } from '../_lib/authz';
-import { audit } from '../_lib/audit';
+import { json, methodNotAllowed } from '../_lib/response.js';
+import { getDb } from '../_lib/mongo.js';
+import { requireSession } from '../_lib/authz.js';
+import { audit } from '../_lib/audit.js';
 
 const roles = ['super_admin', 'admin', 'manager', 'coordinator'] as const;
 type TeamRole = typeof roles[number];
