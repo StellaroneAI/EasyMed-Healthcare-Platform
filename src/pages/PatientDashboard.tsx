@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import VoiceAssistant from '../components/VoiceAssistant';
 import ABHAIntegration from '../components/ABHAIntegration';
 import FamilyManagement from '../components/FamilyManagement';
@@ -14,6 +14,13 @@ import { useLanguage } from '../contexts/LanguageContext';
 
 export default function PatientDashboard() {
   const { currentLanguage, setLanguage, t } = useLanguage();
+  const [userName, setUserName] = useState('');
+
+  useEffect(() => {
+    fetch('/api/auth/me').then(r => r.ok ? r.json() : null).then(data => {
+      if (data?.user?.name) setUserName(data.user.name);
+    }).catch(() => undefined);
+  }, []);
   
   // State for managing different features
   const [showAIChat, setShowAIChat] = useState(false);
@@ -135,7 +142,7 @@ export default function PatientDashboard() {
               </div>
               <div className="min-w-0 flex-1">
                 <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent truncate">
-                  {t('welcomeBack')}, Rajesh! 👋
+                  {t('welcomeBack')}{userName ? `, ${userName}` : ''}! 👋
                 </h1>
                 <p className="text-xs sm:text-sm text-gray-600 truncate">{t('healthCompanion')}</p>
               </div>
@@ -178,8 +185,8 @@ export default function PatientDashboard() {
             <div className="flex items-center justify-between">
               <div className="min-w-0 flex-1">
                 <h3 className="text-xs sm:text-sm text-gray-600 truncate">{t('heartRate')}</h3>
-                <p className="text-xl sm:text-2xl font-bold text-red-600">72</p>
-                <p className="text-xs text-green-600">{t('normal')}</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-500">—</p>
+                <p className="text-xs text-gray-500">Not recorded</p>
               </div>
               <div className="text-red-500 text-lg sm:text-xl ml-2">❤️</div>
             </div>
@@ -189,8 +196,8 @@ export default function PatientDashboard() {
             <div className="flex items-center justify-between">
               <div className="min-w-0 flex-1">
                 <h3 className="text-xs sm:text-sm text-gray-600 truncate">{t('bloodPressure')}</h3>
-                <p className="text-xl sm:text-2xl font-bold text-blue-600">120/80</p>
-                <p className="text-xs text-green-600">{t('normal')}</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-500">—</p>
+                <p className="text-xs text-gray-500">Not recorded</p>
               </div>
               <div className="text-blue-500 text-lg sm:text-xl ml-2">🩺</div>
             </div>
@@ -200,8 +207,8 @@ export default function PatientDashboard() {
             <div className="flex items-center justify-between">
               <div className="min-w-0 flex-1">
                 <h3 className="text-xs sm:text-sm text-gray-600 truncate">{t('nextAppointment')}</h3>
-                <p className="text-sm sm:text-lg font-bold text-purple-600">{t('today3pm')}</p>
-                <p className="text-xs text-gray-600">{t('drSharma')}</p>
+                <p className="text-sm sm:text-lg font-bold text-gray-500">—</p>
+                <p className="text-xs text-gray-500">No appointment scheduled</p>
               </div>
               <div className="text-purple-500 text-lg sm:text-xl ml-2">📅</div>
             </div>
@@ -211,8 +218,8 @@ export default function PatientDashboard() {
             <div className="flex items-center justify-between">
               <div className="min-w-0 flex-1">
                 <h3 className="text-xs sm:text-sm text-gray-600 truncate">{t('medications')}</h3>
-                <p className="text-xl sm:text-2xl font-bold text-orange-600">2</p>
-                <p className="text-xs text-orange-600">{t('dueToday')}</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-500">—</p>
+                <p className="text-xs text-gray-500">No medication data</p>
               </div>
               <div className="text-orange-500 text-lg sm:text-xl ml-2">💊</div>
             </div>
@@ -292,34 +299,12 @@ export default function PatientDashboard() {
               </div>
               <div className="flex-1">
                 <p className="text-sm leading-relaxed text-gray-700">
-                  <strong className="text-blue-700">{t('goodMorning')}</strong> {t('vitalsGreat')} {t('medicationReminder')} {t('nextCheckup')}
+                  <strong className="text-blue-700">Health data</strong> will appear here once your connected records are available.
                 </p>
                 
                 {/* Progress indicators */}
-                <div className="mt-4 grid grid-cols-3 gap-3">
-                  <div className="text-center">
-                    <div className="w-12 h-12 bg-gradient-to-r from-green-400 to-emerald-400 rounded-xl flex items-center justify-center mx-auto mb-2">
-                      <span className="text-white text-lg">💚</span>
-                    </div>
-                    <div className="text-xs font-medium text-gray-600">Health Score</div>
-                    <div className="text-lg font-bold text-green-600">85%</div>
-                  </div>
-                  
-                  <div className="text-center">
-                    <div className="w-12 h-12 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-xl flex items-center justify-center mx-auto mb-2">
-                      <span className="text-white text-lg">🎯</span>
-                    </div>
-                    <div className="text-xs font-medium text-gray-600">Goals Met</div>
-                    <div className="text-lg font-bold text-blue-600">7/10</div>
-                  </div>
-                  
-                  <div className="text-center">
-                    <div className="w-12 h-12 bg-gradient-to-r from-purple-400 to-pink-400 rounded-xl flex items-center justify-center mx-auto mb-2">
-                      <span className="text-white text-lg">📊</span>
-                    </div>
-                    <div className="text-xs font-medium text-gray-600">Streak</div>
-                    <div className="text-lg font-bold text-purple-600">12 days</div>
-                  </div>
+                <div className="mt-4 rounded-xl bg-white/60 p-4 text-sm text-gray-600">
+                  No health score, goals, or activity streak has been calculated yet.
                 </div>
               </div>
             </div>
@@ -359,110 +344,15 @@ export default function PatientDashboard() {
           <PatientEducationLibrary />
         </div>
 
-        {/* Enhanced Family Health Overview */}
-        <section className="bg-gradient-to-br from-white/90 to-purple-50/80 backdrop-blur-lg p-6 rounded-2xl border border-white/30 shadow-xl">
-          <div className="flex items-center mb-4">
-            <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
-              <span className="text-white text-xl">👨‍👩‍👧‍👦</span>
-            </div>
-            <h2 className="text-lg sm:text-xl font-bold text-gray-800 ml-3">{t('familyHealthTitle')}</h2>
-          </div>
-          
-          <div className="space-y-3">
-            {[
-              {
-                name: 'Priya',
-                relation: t('wife'),
-                avatar: '👩',
-                status: t('allVitalsNormal'),
-                statusColor: 'text-green-600',
-                statusIcon: '✅',
-                bgGradient: 'from-pink-50 to-rose-50',
-                avatarBg: 'from-pink-400 to-rose-400'
-              },
-              {
-                name: 'Arjun',
-                relation: `${t('son')}, 12`,
-                avatar: '👦',
-                status: t('vaccinationDue'),
-                statusColor: 'text-orange-600',
-                statusIcon: '⚠️',
-                bgGradient: 'from-blue-50 to-cyan-50',
-                avatarBg: 'from-blue-400 to-cyan-400'
-              }
-            ].map((member) => (
-              <div 
-                key={member.name}
-                className={`bg-gradient-to-r ${member.bgGradient} p-4 rounded-xl border border-white/30 shadow-sm hover:shadow-md transition-all duration-300 touch-manipulation group`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3 min-w-0 flex-1">
-                    <div className={`w-12 h-12 bg-gradient-to-r ${member.avatarBg} rounded-2xl flex items-center justify-center shadow-md group-hover:scale-105 transition-transform`}>
-                      <span className="text-white text-xl">{member.avatar}</span>
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-gray-800 truncate">
-                        {member.name} ({member.relation})
-                      </p>
-                      <p className={`text-sm ${member.statusColor} truncate font-medium`}>
-                        {member.status}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-2xl flex-shrink-0 ml-2 group-hover:scale-110 transition-transform">
-                    {member.statusIcon}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+        {/* Family overview will be populated from authenticated family records. */}
+        <section className="bg-white/80 p-6 rounded-2xl border border-white/30 shadow-xl">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-2">{t('familyHealthTitle')}</h2>
+          <p className="text-sm text-gray-600">No family members are currently loaded.</p>
         </section>
 
-        {/* Enhanced Recent Activity */}
-        <section className="bg-gradient-to-br from-white/90 to-green-50/80 backdrop-blur-lg p-6 rounded-2xl border border-white/30 shadow-xl">
-          <div className="flex items-center mb-4">
-            <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
-              <span className="text-white text-xl">🕒</span>
-            </div>
-            <h2 className="text-lg sm:text-xl font-bold text-gray-800 ml-3">{t('recentActivity')}</h2>
-          </div>
-          
-          <div className="space-y-4">
-            {[
-              {
-                icon: '🩺',
-                title: t('bloodPressureRecorded'),
-                time: t('hoursAgo'),
-                gradient: 'from-green-400 to-emerald-400'
-              },
-              {
-                icon: '📅',
-                title: t('appointmentBooked'),
-                time: t('yesterday'),
-                gradient: 'from-blue-400 to-cyan-400'
-              },
-              {
-                icon: '📊',
-                title: t('healthReportShared'),
-                time: t('daysAgo'),
-                gradient: 'from-purple-400 to-pink-400'
-              }
-            ].map((activity, index) => (
-              <div 
-                key={index}
-                className="flex items-start space-x-4 p-3 bg-white/50 rounded-xl hover:bg-white/70 transition-all duration-300 group"
-              >
-                <div className={`w-10 h-10 bg-gradient-to-r ${activity.gradient} rounded-xl flex items-center justify-center shadow-md group-hover:scale-105 transition-transform flex-shrink-0`}>
-                  <span className="text-white text-lg">{activity.icon}</span>
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="font-medium text-gray-800 text-sm">{activity.title}</p>
-                  <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
-                </div>
-                <div className="w-3 h-3 bg-green-500 rounded-full flex-shrink-0 mt-2 group-hover:scale-110 transition-transform opacity-75"></div>
-              </div>
-            ))}
-          </div>
+        <section className="bg-white/80 p-6 rounded-2xl border border-white/30 shadow-xl">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-800 ml-3">{t('recentActivity')}</h2>
+          <p className="text-sm text-gray-600 mt-2">No recent activity is available yet.</p>
         </section>
 
         {/* Voice Assistant */}
