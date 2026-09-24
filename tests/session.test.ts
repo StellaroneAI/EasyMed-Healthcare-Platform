@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createSession, getSession, sessionCookie } from "../api/_lib/session";
 
-describe("session security",()=>{
+describe("session security",()=>{\n  process.env.SESSION_SECRET="test-session-secret";
   it("round-trips a signed session cookie",()=>{
     const session=createSession({userId:"u1",userType:"patient",name:"Test User"});
     const request=new Request("https://example.test",{headers:{cookie:session.cookie}});
