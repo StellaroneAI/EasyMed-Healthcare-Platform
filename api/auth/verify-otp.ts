@@ -45,8 +45,9 @@ export async function POST(request: Request): Promise<Response> {
 
     const db = await getDb();
     const collection = userType === 'doctor' ? 'doctors' : userType === 'asha' ? 'ashaworkers' : 'patients';
+    const userCollection = db.collection(collection) as any;
     const phoneField = 'phone';
-    let user = await db.collection(collection).findOne({ [phoneField]: phone });
+    let user = await userCollection.findOne({ [phoneField]: phone });
     if (!user && userType !== 'patient') {
       return json({ error: 'This healthcare role must be provisioned by an administrator.' }, { status: 403 });
     }
@@ -59,7 +60,7 @@ export async function POST(request: Request): Promise<Response> {
         createdAt: new Date(),
         updatedAt: new Date(),
       };
-      await db.collection(collection).insertOne(record as any);
+      await userCollection.insertOne(record);
       user = record;
     }
 
