@@ -108,7 +108,7 @@ async function networkFirst(request) {
 
     return new Response('Offline - Content not available', { status: 503 });
   }
-});
+}
 
 self.addEventListener('push', (event) => {
   const options = {
