@@ -270,11 +270,6 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                         📱
                       </div>
                     </div>
-                    {activeTab === 'admin' && phoneNumber === '+919060328119' && (
-                      <p className="text-sm text-green-600 mt-2 flex items-center">
-                        ✅ Super Admin Access Detected
-                      </p>
-                    )}
                   </div>
 
                   {showOTP && (

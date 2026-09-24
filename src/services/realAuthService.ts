@@ -47,8 +47,20 @@ class RealAuthService {
   private users: Map<string, User> = new Map();
   private pendingRegistrations: Map<string, UserRegistration> = new Map();
   private otpSessions: Map<string, { phone: string; timestamp: number }> = new Map();
+  private adminEmails: string[];
+  private adminPhones: string[];
+  private adminPassword: string;
 
   constructor() {
+    this.adminEmails = (import.meta.env.VITE_ADMIN_EMAIL_ALLOWLIST || '')
+      .split(',')
+      .map((value: string) => value.trim().toLowerCase())
+      .filter(Boolean);
+    this.adminPhones = (import.meta.env.VITE_ADMIN_PHONE_ALLOWLIST || '')
+      .split(',')
+      .map((value: string) => value.trim())
+      .filter(Boolean);
+    this.adminPassword = import.meta.env.VITE_ADMIN_LOGIN_PASSWORD || '';
     this.loadUsersFromStorage();
   }
 
@@ -199,41 +211,39 @@ class RealAuthService {
           return { success: false, error: 'Invalid phone number format' };
         }
 
-        // Check against admin phone numbers
-        const adminPhones = ['+919060328119']; // Add other admin phones here
-        if (!adminPhones.includes(formattedPhone)) {
+        if (!this.adminPhones.includes(formattedPhone)) {
           return { success: false, error: 'Access denied. Contact system administrator.' };
         }
 
         // For admin phone, send OTP
         return await this.sendOTP(formattedPhone);
       } else {
-        // Email authentication
-        const adminEmails = [
-          'praveen@stellaronehealth.com',
-          'admin@easymed.in',
-          'admin@gmail.com'
-        ];
-
-        const adminPasswords = ['dummy123', 'admin123', 'easymed2025'];
-
-        if (!adminEmails.includes(identifier)) {
+        const normalizedEmail = identifier.trim().toLowerCase();
+        if (!this.adminEmails.includes(normalizedEmail)) {
           return { success: false, error: 'Access denied. Contact system administrator.' };
         }
 
-        if (!password || !adminPasswords.includes(password)) {
+        if (!this.adminPassword) {
+          return { success: false, error: 'Admin login is not configured. Set VITE_ADMIN_LOGIN_PASSWORD.' };
+        }
+
+        if (!password || password !== this.adminPassword) {
           return { success: false, error: 'Invalid password' };
         }
 
         // Create/find admin user
-        let adminUser = this.findUserByEmail(identifier);
+        let adminUser = this.findUserByEmail(normalizedEmail);
         if (!adminUser) {
+          const adminName = normalizedEmail.split('@')[0]
+            .replace(/[._-]+/g, ' ')
+            .replace(/\b\w/g, (char) => char.toUpperCase());
+
           adminUser = await this.createUser({
-            name: identifier === 'praveen@stellaronehealth.com' ? 'Praveen - StellarOne Health' : 'Admin User',
-            email: identifier,
-            phone: '+919060328119', // Default admin phone
+            name: adminName || 'Admin User',
+            email: normalizedEmail,
+            phone: this.adminPhones[0] || '',
             userType: 'admin',
-            organization: identifier === 'praveen@stellaronehealth.com' ? 'StellarOne Health' : 'EasyMed'
+            organization: 'EasyMed'
           });
         }
 

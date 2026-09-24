@@ -27,23 +27,6 @@ interface AdminContextType {
 
 const AdminContext = createContext<AdminContextType | null>(null);
 
-// Super Admin Configuration - Your phone number and email
-const SUPER_ADMIN_PHONE = '9060328119';
-const SUPER_ADMIN_EMAILS = [
-  'admin@easymed.in',
-  'admin@gmail.com', 
-  'superadmin@easymed.in',
-  'praveen@stellaronehealth.com'
-];
-
-// Valid passwords for admin access
-const ADMIN_PASSWORDS = [
-  'admin123',
-  'easymed2025',
-  'admin@123',
-  'dummy123'
-];
-
 // Default permissions for different roles
 const DEFAULT_PERMISSIONS = {
   super_admin: [
@@ -109,69 +92,55 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const isSuperAdmin = currentAdmin?.phone === SUPER_ADMIN_PHONE || 
-                     SUPER_ADMIN_EMAILS.includes(currentAdmin?.email || '');
+  const isSuperAdmin = currentAdmin?.role === 'super_admin';
+
+  const normalizeIdentifier = (value: string): string => value.replace(/\s+/g, '').toLowerCase();
 
   const loginAdmin = async (identifier: string, userInfo?: any, password?: string): Promise<boolean> => {
     try {
-      // Check if it's the super admin phone
-      if (identifier === SUPER_ADMIN_PHONE) {
-        const superAdmin: AdminUser = {
-          id: 'super_admin_001',
-          name: userInfo?.name || 'Super Admin',
-          phone: SUPER_ADMIN_PHONE,
-          email: userInfo?.email || '',
-          designation: 'System Administrator',
-          role: 'super_admin',
-          permissions: DEFAULT_PERMISSIONS.super_admin,
+      const normalizedIdentifier = normalizeIdentifier(identifier);
+
+      // Trusted flow: use authenticated user info from auth service
+      if (userInfo?.name && (userInfo?.email || userInfo?.phone)) {
+        const teamMember = adminTeam.find((member) => (
+          member.isActive &&
+          (
+            normalizeIdentifier(member.phone) === normalizedIdentifier ||
+            (member.email && normalizeIdentifier(member.email) === normalizedIdentifier)
+          )
+        ));
+
+        const authenticatedAdmin: AdminUser = teamMember || {
+          id: `admin_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+          name: userInfo.name,
+          phone: userInfo.phone || '',
+          email: userInfo.email || undefined,
+          designation: userInfo.designation || 'Administrator',
+          role: userInfo.role || 'admin',
+          permissions: DEFAULT_PERMISSIONS[userInfo.role as keyof typeof DEFAULT_PERMISSIONS] || DEFAULT_PERMISSIONS.admin,
           createdAt: new Date(),
           isActive: true
         };
 
-        setCurrentAdmin(superAdmin);
+        setCurrentAdmin(authenticatedAdmin);
         setIsAdminAuthenticated(true);
-        localStorage.setItem('easymed_admin', JSON.stringify(superAdmin));
+        localStorage.setItem('easymed_admin', JSON.stringify(authenticatedAdmin));
         return true;
       }
 
-      // Check if it's super admin email with password
-      if (SUPER_ADMIN_EMAILS.includes(identifier) && password && ADMIN_PASSWORDS.includes(password)) {
-        const adminName = identifier === 'praveen@stellaronehealth.com' ? 'Praveen - StellarOne Health' : 'Super Admin';
-        
-        const superAdmin: AdminUser = {
-          id: 'super_admin_email_001',
-          name: adminName,
-          phone: userInfo?.phone || SUPER_ADMIN_PHONE,
-          email: identifier,
-          designation: 'System Administrator',
-          role: 'super_admin',
-          permissions: DEFAULT_PERMISSIONS.super_admin,
-          createdAt: new Date(),
-          isActive: true
-        };
-        
-        setCurrentAdmin(superAdmin);
-        setIsAdminAuthenticated(true);
-        localStorage.setItem('easymed_admin', JSON.stringify(superAdmin));
-        return true;
-      }
+      // Fallback flow: existing team members with active status
+      const teamMember = adminTeam.find((member) => (
+        member.isActive &&
+        (
+          normalizeIdentifier(member.phone) === normalizedIdentifier ||
+          (member.email && normalizeIdentifier(member.email) === normalizedIdentifier)
+        )
+      ));
 
-      // Check if it's an existing team member by phone
-      const teamMemberByPhone = adminTeam.find(member => member.phone === identifier && member.isActive);
-      if (teamMemberByPhone) {
-        setCurrentAdmin(teamMemberByPhone);
+      if (teamMember) {
+        setCurrentAdmin(teamMember);
         setIsAdminAuthenticated(true);
-        localStorage.setItem('easymed_admin', JSON.stringify(teamMemberByPhone));
-        return true;
-      }
-
-      // Check if it's an existing team member by email
-      const teamMemberByEmail = adminTeam.find(member => member.email === identifier && member.isActive);
-      if (teamMemberByEmail) {
-        setCurrentAdmin(teamMemberByEmail);
-        setIsAdminAuthenticated(true);
-        localStorage.setItem('easymed_admin', JSON.stringify(teamMemberByEmail));
-        
+        localStorage.setItem('easymed_admin', JSON.stringify(teamMember));
         return true;
       }
       

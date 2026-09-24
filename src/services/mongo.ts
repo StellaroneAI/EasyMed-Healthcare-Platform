@@ -1,39 +1,54 @@
-import { MongoClient, Db, Collection } from 'mongodb';
+const STORAGE_PREFIX = 'easymed_db_';
 
-// Database connection
-let client: MongoClient;
-let db: Db;
-
-// MongoDB connection string from environment
-const MONGODB_URI = import.meta.env.VITE_MONGODB_URI || 'mongodb://localhost:27017/easymedpro';
-
-// Initialize MongoDB connection
-export async function connectDB(): Promise<Db> {
-  if (db) {
-    return db;
-  }
-
+function readCollection<T>(name: string): T[] {
+  const raw = localStorage.getItem(`${STORAGE_PREFIX}${name}`);
+  if (!raw) return [];
   try {
-    client = new MongoClient(MONGODB_URI);
-    await client.connect();
-    db = client.db('easymedpro');
-    console.log('✅ Connected to MongoDB successfully');
-    return db;
+    return JSON.parse(raw) as T[];
   } catch (error) {
-    console.error('❌ MongoDB connection failed:', error);
-    throw error;
+    console.error(`Failed to parse ${name} collection:`, error);
+    return [];
   }
 }
 
-// Close database connection
-export async function closeDB(): Promise<void> {
-  if (client) {
-    await client.close();
-    console.log('🔌 MongoDB connection closed');
-  }
+function writeCollection<T>(name: string, data: T[]): void {
+  localStorage.setItem(`${STORAGE_PREFIX}${name}`, JSON.stringify(data));
 }
 
-// Database schemas and types
+export async function connectDB(): Promise<any> {
+  return {
+    collection: (name: string) => ({
+      find: (query: Record<string, unknown> = {}) => {
+        const rows = readCollection<any>(name).filter((row) =>
+          Object.entries(query).every(([key, value]) => row[key] === value)
+        );
+        return {
+          sort: () => ({ limit: () => ({ skip: () => ({ toArray: async () => rows }) }), toArray: async () => rows }),
+          limit: () => ({ skip: () => ({ toArray: async () => rows }) }),
+          toArray: async () => rows
+        };
+      },
+      findOne: async (query: Record<string, unknown>) =>
+        readCollection<any>(name).find((row) =>
+          Object.entries(query).every(([key, value]) => row[key] === value)
+        ) || null,
+      insertOne: async (doc: Record<string, unknown>) => {
+        const rows = readCollection<any>(name);
+        rows.push(doc);
+        writeCollection(name, rows);
+        return { insertedId: (doc as any)?._id || Date.now().toString() };
+      },
+      countDocuments: async (query: Record<string, unknown> = {}) =>
+        readCollection<any>(name).filter((row) =>
+          Object.entries(query).every(([key, value]) => row[key] === value)
+        ).length,
+      createIndex: async () => undefined
+    })
+  };
+}
+
+export async function closeDB(): Promise<void> {}
+
 export interface Patient {
   _id?: string;
   patientId: string;
@@ -67,17 +82,17 @@ export interface Patient {
     height: number;
     lastUpdated: Date;
   };
-  appointments: string[]; // appointment IDs
-  assignedASHA?: string; // ASHA worker ID
-  assignedDoctor?: string; // Doctor ID
+  appointments: string[];
+  assignedASHA?: string;
+  assignedDoctor?: string;
   language: string;
-  schemes: string[]; // Government schemes enrolled
+  schemes: string[];
   isPregnant?: boolean;
   pregnancyInfo?: {
     trimester: number;
     expectedDelivery: Date;
     riskLevel: 'low' | 'medium' | 'high';
-    schemes: string[]; // Pregnancy-specific schemes
+    schemes: string[];
   };
   createdAt: Date;
   updatedAt: Date;
@@ -101,9 +116,9 @@ export interface ASHAWorker {
     population: number;
     households: number;
   };
-  patients: string[]; // Patient IDs
+  patients: string[];
   qualifications: string[];
-  experience: number; // years
+  experience: number;
   language: string[];
   specializations: string[];
   performance: {
@@ -143,7 +158,7 @@ export interface Doctor {
     consultationFee: number;
     videoConsultationFee: number;
   };
-  patients: string[]; // Patient IDs
+  patients: string[];
   ratings: {
     average: number;
     total: number;
@@ -172,7 +187,7 @@ export interface Appointment {
   type: 'physical' | 'telemedicine' | 'home-visit' | 'emergency';
   status: 'scheduled' | 'confirmed' | 'in-progress' | 'completed' | 'cancelled' | 'rescheduled';
   dateTime: Date;
-  duration: number; // minutes
+  duration: number;
   symptoms: string;
   diagnosis?: string;
   prescription?: {
@@ -201,7 +216,7 @@ export interface GovernmentScheme {
   _id?: string;
   schemeId: string;
   name: string;
-  nameLocal: string; // in local language
+  nameLocal: string;
   state: string;
   description: string;
   eligibility: {
@@ -223,304 +238,188 @@ export interface GovernmentScheme {
   updatedAt: Date;
 }
 
-// Database service class
 export class DatabaseService {
-  private isConnected: boolean = false;
-  
-  // Database connection methods
+  private isConnected = false;
+
   async connect(): Promise<void> {
-    try {
-      // In a real app, this would connect to MongoDB
-      // For demo purposes, we'll simulate connection
-      console.log('🔌 Connecting to MongoDB Atlas...');
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate connection delay
-      this.isConnected = true;
-      console.log('✅ Connected to MongoDB successfully');
-    } catch (error) {
-      console.error('❌ MongoDB connection failed:', error);
-      throw error;
-    }
+    this.isConnected = true;
   }
-  
+
   async disconnect(): Promise<void> {
     this.isConnected = false;
-    console.log('📡 Disconnected from MongoDB');
   }
-  
+
   async clearAllData(): Promise<void> {
     if (!this.isConnected) {
       throw new Error('Database not connected');
     }
-    
-    // In a real app, this would clear all collections
-    console.log('🧹 Clearing all data from database...');
-    await new Promise(resolve => setTimeout(resolve, 500));
-    console.log('✅ All data cleared');
+    ['patients', 'ashaworkers', 'doctors', 'appointments', 'schemes'].forEach((name) =>
+      localStorage.removeItem(`${STORAGE_PREFIX}${name}`)
+    );
   }
-  private db: Db | null = null;
 
   async init(): Promise<void> {
-    this.db = await connectDB();
-    await this.createIndexes();
+    await this.connect();
   }
 
-  private async createIndexes(): Promise<void> {
-    if (!this.db) return;
-
-    // Create indexes for better performance
-    await this.db.collection('patients').createIndex({ patientId: 1 }, { unique: true });
-    await this.db.collection('patients').createIndex({ phone: 1 });
-    await this.db.collection('patients').createIndex({ email: 1 });
-    await this.db.collection('patients').createIndex({ 'address.state': 1 });
-    
-    await this.db.collection('ashaworkers').createIndex({ ashaId: 1 }, { unique: true });
-    await this.db.collection('ashaworkers').createIndex({ phone: 1 });
-    
-    await this.db.collection('doctors').createIndex({ doctorId: 1 }, { unique: true });
-    await this.db.collection('doctors').createIndex({ email: 1 });
-    await this.db.collection('doctors').createIndex({ specialization: 1 });
-    
-    await this.db.collection('appointments').createIndex({ appointmentId: 1 }, { unique: true });
-    await this.db.collection('appointments').createIndex({ patientId: 1 });
-    await this.db.collection('appointments').createIndex({ doctorId: 1 });
-    await this.db.collection('appointments').createIndex({ dateTime: 1 });
-    
-    await this.db.collection('schemes').createIndex({ schemeId: 1 }, { unique: true });
-    await this.db.collection('schemes').createIndex({ state: 1 });
-    await this.db.collection('schemes').createIndex({ category: 1 });
+  private ensureConnection(): void {
+    if (!this.isConnected) throw new Error('Database not initialized');
   }
 
-  // Patient operations
   async createPatient(patient: Omit<Patient, '_id'>): Promise<Patient> {
-    if (!this.db) throw new Error('Database not initialized');
-    
-    const result = await this.db.collection<Patient>('patients').insertOne(patient);
-    return { ...patient, _id: result.insertedId.toString() };
+    this.ensureConnection();
+    const rows = readCollection<Patient>('patients');
+    const created = { ...patient, _id: generateId('PAT') };
+    rows.push(created);
+    writeCollection('patients', rows);
+    return created;
   }
 
   async getPatient(patientId: string): Promise<Patient | null> {
-    if (!this.db) throw new Error('Database not initialized');
-    
-    return await this.db.collection<Patient>('patients').findOne({ patientId });
+    this.ensureConnection();
+    return readCollection<Patient>('patients').find((row) => row.patientId === patientId) || null;
   }
 
   async getPatientByPhone(phone: string): Promise<Patient | null> {
-    if (!this.db) throw new Error('Database not initialized');
-    
-    return await this.db.collection<Patient>('patients').findOne({ phone });
+    this.ensureConnection();
+    return readCollection<Patient>('patients').find((row) => row.phone === phone) || null;
   }
 
   async getAllPatients(limit: number = 50, skip: number = 0): Promise<Patient[]> {
-    if (!this.db) throw new Error('Database not initialized');
-    
-    return await this.db.collection<Patient>('patients')
-      .find()
-      .sort({ createdAt: -1 })
-      .limit(limit)
-      .skip(skip)
-      .toArray();
+    this.ensureConnection();
+    return readCollection<Patient>('patients').slice(skip, skip + limit);
   }
 
   async getPatientsByState(state: string): Promise<Patient[]> {
-    if (!this.db) throw new Error('Database not initialized');
-    
-    return await this.db.collection<Patient>('patients')
-      .find({ 'address.state': state })
-      .toArray();
+    this.ensureConnection();
+    return readCollection<Patient>('patients').filter((row) => row.address.state === state);
   }
 
   async getPregnantPatients(state?: string): Promise<Patient[]> {
-    if (!this.db) throw new Error('Database not initialized');
-    
-    const query: any = { isPregnant: true };
-    if (state) query['address.state'] = state;
-    
-    return await this.db.collection<Patient>('patients').find(query).toArray();
+    this.ensureConnection();
+    return readCollection<Patient>('patients').filter((row) => row.isPregnant && (!state || row.address.state === state));
   }
 
-  // ASHA Worker operations
   async createASHA(asha: Omit<ASHAWorker, '_id'>): Promise<ASHAWorker> {
-    if (!this.db) throw new Error('Database not initialized');
-    
-    const result = await this.db.collection<ASHAWorker>('ashaworkers').insertOne(asha);
-    return { ...asha, _id: result.insertedId.toString() };
+    this.ensureConnection();
+    const rows = readCollection<ASHAWorker>('ashaworkers');
+    const created = { ...asha, _id: generateId('ASHA') };
+    rows.push(created);
+    writeCollection('ashaworkers', rows);
+    return created;
   }
 
   async getASHA(ashaId: string): Promise<ASHAWorker | null> {
-    if (!this.db) throw new Error('Database not initialized');
-    
-    return await this.db.collection<ASHAWorker>('ashaworkers').findOne({ ashaId });
+    this.ensureConnection();
+    return readCollection<ASHAWorker>('ashaworkers').find((row) => row.ashaId === ashaId) || null;
   }
 
   async getAllASHAs(): Promise<ASHAWorker[]> {
-    if (!this.db) throw new Error('Database not initialized');
-    
-    return await this.db.collection<ASHAWorker>('ashaworkers').find().toArray();
+    this.ensureConnection();
+    return readCollection<ASHAWorker>('ashaworkers');
   }
 
-  // Doctor operations
   async createDoctor(doctor: Omit<Doctor, '_id'>): Promise<Doctor> {
-    if (!this.db) throw new Error('Database not initialized');
-    
-    const result = await this.db.collection<Doctor>('doctors').insertOne(doctor);
-    return { ...doctor, _id: result.insertedId.toString() };
+    this.ensureConnection();
+    const rows = readCollection<Doctor>('doctors');
+    const created = { ...doctor, _id: generateId('DOC') };
+    rows.push(created);
+    writeCollection('doctors', rows);
+    return created;
   }
 
   async getDoctor(doctorId: string): Promise<Doctor | null> {
-    if (!this.db) throw new Error('Database not initialized');
-    
-    return await this.db.collection<Doctor>('doctors').findOne({ doctorId });
+    this.ensureConnection();
+    return readCollection<Doctor>('doctors').find((row) => row.doctorId === doctorId) || null;
   }
 
   async getDoctorByEmail(email: string): Promise<Doctor | null> {
-    if (!this.db) throw new Error('Database not initialized');
-    
-    return await this.db.collection<Doctor>('doctors').findOne({ email });
+    this.ensureConnection();
+    return readCollection<Doctor>('doctors').find((row) => row.email === email) || null;
   }
 
   async getAllDoctors(): Promise<Doctor[]> {
-    if (!this.db) throw new Error('Database not initialized');
-    
-    return await this.db.collection<Doctor>('doctors').find().toArray();
+    this.ensureConnection();
+    return readCollection<Doctor>('doctors');
   }
 
   async getDoctorsBySpecialization(specialization: string): Promise<Doctor[]> {
-    if (!this.db) throw new Error('Database not initialized');
-    
-    return await this.db.collection<Doctor>('doctors')
-      .find({ specialization: { $in: [specialization] } })
-      .toArray();
+    this.ensureConnection();
+    return readCollection<Doctor>('doctors').filter((row) => row.specialization.includes(specialization));
   }
 
-  // Appointment operations
   async createAppointment(appointment: Omit<Appointment, '_id'>): Promise<Appointment> {
-    if (!this.db) throw new Error('Database not initialized');
-    
-    const result = await this.db.collection<Appointment>('appointments').insertOne(appointment);
-    return { ...appointment, _id: result.insertedId.toString() };
+    this.ensureConnection();
+    const rows = readCollection<Appointment>('appointments');
+    const created = { ...appointment, _id: generateId('APT') };
+    rows.push(created);
+    writeCollection('appointments', rows);
+    return created;
   }
 
   async getAppointment(appointmentId: string): Promise<Appointment | null> {
-    if (!this.db) throw new Error('Database not initialized');
-    
-    return await this.db.collection<Appointment>('appointments').findOne({ appointmentId });
+    this.ensureConnection();
+    return readCollection<Appointment>('appointments').find((row) => row.appointmentId === appointmentId) || null;
   }
 
   async getPatientAppointments(patientId: string): Promise<Appointment[]> {
-    if (!this.db) throw new Error('Database not initialized');
-    
-    return await this.db.collection<Appointment>('appointments')
-      .find({ patientId })
-      .sort({ dateTime: -1 })
-      .toArray();
+    this.ensureConnection();
+    return readCollection<Appointment>('appointments').filter((row) => row.patientId === patientId);
   }
 
-  async getDoctorAppointments(doctorId: string, date?: Date): Promise<Appointment[]> {
-    if (!this.db) throw new Error('Database not initialized');
-    
-    const query: any = { doctorId };
-    if (date) {
-      const startDate = new Date(date);
-      startDate.setHours(0, 0, 0, 0);
-      const endDate = new Date(date);
-      endDate.setHours(23, 59, 59, 999);
-      query.dateTime = { $gte: startDate, $lte: endDate };
-    }
-    
-    return await this.db.collection<Appointment>('appointments')
-      .find(query)
-      .sort({ dateTime: 1 })
-      .toArray();
+  async getDoctorAppointments(doctorId: string): Promise<Appointment[]> {
+    this.ensureConnection();
+    return readCollection<Appointment>('appointments').filter((row) => row.doctorId === doctorId);
   }
 
-  // Government Scheme operations
   async createScheme(scheme: Omit<GovernmentScheme, '_id'>): Promise<GovernmentScheme> {
-    if (!this.db) throw new Error('Database not initialized');
-    
-    const result = await this.db.collection<GovernmentScheme>('schemes').insertOne(scheme);
-    return { ...scheme, _id: result.insertedId.toString() };
+    this.ensureConnection();
+    const rows = readCollection<GovernmentScheme>('schemes');
+    const created = { ...scheme, _id: generateId('SCH') };
+    rows.push(created);
+    writeCollection('schemes', rows);
+    return created;
   }
 
   async getSchemesByState(state: string): Promise<GovernmentScheme[]> {
-    if (!this.db) throw new Error('Database not initialized');
-    
-    return await this.db.collection<GovernmentScheme>('schemes')
-      .find({ state, isActive: true })
-      .toArray();
+    this.ensureConnection();
+    return readCollection<GovernmentScheme>('schemes').filter((row) => row.state === state && row.isActive);
   }
 
   async getPregnancySchemes(state: string): Promise<GovernmentScheme[]> {
-    if (!this.db) throw new Error('Database not initialized');
-    
-    return await this.db.collection<GovernmentScheme>('schemes')
-      .find({ state, category: 'pregnancy', isActive: true })
-      .toArray();
+    this.ensureConnection();
+    return readCollection<GovernmentScheme>('schemes').filter((row) => row.state === state && row.category === 'pregnancy' && row.isActive);
   }
 
   async getAllSchemes(): Promise<GovernmentScheme[]> {
-    if (!this.db) throw new Error('Database not initialized');
-    
-    return await this.db.collection<GovernmentScheme>('schemes')
-      .find({ isActive: true })
-      .toArray();
+    this.ensureConnection();
+    return readCollection<GovernmentScheme>('schemes').filter((row) => row.isActive);
   }
 
-  // Authentication methods
   async authenticateUser(identifier: string, userType: 'patient' | 'asha' | 'doctor'): Promise<any> {
-    if (!this.db) throw new Error('Database not initialized');
-    
-    let user = null;
-    
-    switch (userType) {
-      case 'patient':
-        user = await this.db.collection<Patient>('patients')
-          .findOne({ $or: [{ phone: identifier }, { email: identifier }] });
-        break;
-      case 'asha':
-        user = await this.db.collection<ASHAWorker>('ashaworkers')
-          .findOne({ $or: [{ phone: identifier }, { email: identifier }] });
-        break;
-      case 'doctor':
-        user = await this.db.collection<Doctor>('doctors')
-          .findOne({ $or: [{ phone: identifier }, { email: identifier }] });
-        break;
-    }
-    
-    return user;
+    this.ensureConnection();
+    const sources = {
+      patient: readCollection<Patient>('patients'),
+      asha: readCollection<ASHAWorker>('ashaworkers'),
+      doctor: readCollection<Doctor>('doctors')
+    };
+    return sources[userType].find((user: any) => user.phone === identifier || user.email === identifier) || null;
   }
 
-  // Statistics and analytics
   async getDashboardStats(): Promise<any> {
-    if (!this.db) throw new Error('Database not initialized');
-    
-    const [patientCount, ashaCount, doctorCount, appointmentCount] = await Promise.all([
-      this.db.collection('patients').countDocuments(),
-      this.db.collection('ashaworkers').countDocuments(),
-      this.db.collection('doctors').countDocuments(),
-      this.db.collection('appointments').countDocuments()
-    ]);
-    
-    const todayAppointments = await this.db.collection('appointments').countDocuments({
-      dateTime: {
-        $gte: new Date(new Date().setHours(0, 0, 0, 0)),
-        $lt: new Date(new Date().setHours(23, 59, 59, 999))
-      }
-    });
-    
+    this.ensureConnection();
     return {
-      totalPatients: patientCount,
-      totalASHAs: ashaCount,
-      totalDoctors: doctorCount,
-      totalAppointments: appointmentCount,
-      todayAppointments
+      totalPatients: readCollection<Patient>('patients').length,
+      totalASHAs: readCollection<ASHAWorker>('ashaworkers').length,
+      totalDoctors: readCollection<Doctor>('doctors').length,
+      totalAppointments: readCollection<Appointment>('appointments').length,
+      todayAppointments: 0
     };
   }
 }
 
-// Export singleton instance
 export const dbService = new DatabaseService();
 
-// Utility functions
 export function generateId(prefix: string): string {
   const timestamp = Date.now().toString(36);
   const random = Math.random().toString(36).substring(2, 8);

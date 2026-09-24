@@ -1,20 +1,22 @@
-// OpenAI API integration for EasyMedPro
-import OpenAI from 'openai';
-import dotenv from 'dotenv';
-dotenv.config();
+const AI_API_BASE_URL = import.meta.env.VITE_AI_API_BASE_URL || '/api/ai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || '',
-});
-
-export async function getHealthAdvice(prompt: string) {
-  const response = await openai.chat.completions.create({
-    model: 'gpt-3.5-turbo',
-    messages: [{ role: 'user', content: prompt }],
-    max_tokens: 150,
+export async function getHealthAdvice(prompt: string): Promise<string> {
+  const response = await fetch(`${AI_API_BASE_URL}/health-query`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      query: prompt,
+      language: 'english',
+      context: { source: 'translations-db-openai' }
+    })
   });
-  return response.choices[0].message?.content;
-}
 
-// Example usage:
-// getHealthAdvice('What should I do for high blood pressure?').then(console.log);
+  if (!response.ok) {
+    throw new Error('Unable to fetch health advice');
+  }
+
+  const payload = await response.json();
+  return payload?.answer || 'Health advice is currently unavailable.';
+}

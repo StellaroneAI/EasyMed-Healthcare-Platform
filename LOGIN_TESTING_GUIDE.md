@@ -7,26 +7,26 @@
 
 ## Test the Admin Login
 
-### Method 1: Phone Login (9060328119)
+### Method 1: Phone Login (<configured-admin-phone>)
 1. Open http://localhost:5173/
 2. Click on **"Admin/NGO"** user type
 3. Ensure **"Login with Phone"** is selected
-4. Enter phone number: `9060328119`
+4. Enter phone number: `<configured-admin-phone>`
 5. Click **"Auto Login"** (no OTP required)
 6. Should redirect to dashboard with admin header
 
-### Method 2: Email Login (praveen@stellaronehealth.com)
+### Method 2: Email Login (<configured-admin-email>)
 1. Open http://localhost:5173/
 2. Click on **"Admin/NGO"** user type  
 3. Click **"Login with Email"** tab
-4. Enter email: `praveen@stellaronehealth.com`
-5. Enter password: `dummy123`
+4. Enter email: `<configured-admin-email>`
+5. Enter password: `<configured-admin-password>`
 6. Click **"Login"**
 7. Should redirect to dashboard with admin header showing "Welcome, Praveen - StellarOne Health"
 
 ### Method 3: Other Admin Emails
-- **Email**: `admin@easymed.in` | **Password**: `admin123`
-- **Email**: `admin@gmail.com` | **Password**: `easymed2025`
+- **Email**: `<configured-admin-email>` | **Password**: `<configured-admin-password>`
+- **Email**: `<configured-admin-email>` | **Password**: `<configured-admin-password>`
 
 ## What You Should See After Login
 

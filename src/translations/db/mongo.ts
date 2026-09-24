@@ -1,20 +1,28 @@
-// MongoDB integration for EasyMedPro
-import { MongoClient } from 'mongodb';
-import dotenv from 'dotenv';
-dotenv.config();
+type DemoUser = {
+  name: string;
+  email: string;
+  health: {
+    heartRate: number;
+    bloodPressure: string;
+    medications: string[];
+    nextAppointment: string;
+  };
+};
 
-const uri = process.env.MONGODB_URI || '';
-const client = new MongoClient(uri);
+const STORAGE_KEY = 'easymed_demo_users';
 
 export async function connectDB() {
-  if (!client.isConnected()) await client.connect();
-  return client.db(process.env.DB_NAME || 'easymedpro');
+  return {
+    collection: () => ({
+      toArray: async () => getDemoUsers(),
+      insertOne: async (user: DemoUser) => ({ insertedId: user.email })
+    })
+  };
 }
 
 export async function addDemoUser() {
-  const db = await connectDB();
-  const users = db.collection('users');
-  const demoUser = {
+  const users = await getDemoUsers();
+  const demoUser: DemoUser = {
     name: 'Rajesh',
     email: 'rajesh@example.com',
     health: {
@@ -24,11 +32,20 @@ export async function addDemoUser() {
       nextAppointment: '2025-07-30T15:00:00Z'
     }
   };
-  await users.insertOne(demoUser);
+
+  const updated = [...users.filter((user) => user.email !== demoUser.email), demoUser];
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   return demoUser;
 }
 
-export async function getDemoUsers() {
-  const db = await connectDB();
-  return db.collection('users').find().toArray();
+export async function getDemoUsers(): Promise<DemoUser[]> {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return [];
+
+  try {
+    return JSON.parse(raw) as DemoUser[];
+  } catch (error) {
+    console.error('Failed to parse demo users from local storage:', error);
+    return [];
+  }
 }

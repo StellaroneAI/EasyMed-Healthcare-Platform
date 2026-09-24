@@ -3,12 +3,12 @@
 ## 🔐 Test Login Credentials for All User Types
 
 ### 👨‍⚕️ **Admin Login**
-- **Phone**: `9060328119` (direct access)
+- **Phone**: `<configured-admin-phone>` (direct access)
 - **Email + Password**:
-  - `admin@easymed.in` / `admin123`
-  - `praveen@stellaronehealth.com` / `dummy123`
-  - `admin@gmail.com` / `easymed2025`
-  - `superadmin@easymed.in` / `admin@123`
+  - `<configured-admin-email>` / `<configured-admin-password>`
+  - `<configured-admin-email>` / `<configured-admin-password>`
+  - `<configured-admin-email>` / `<configured-admin-password>`
+  - `super<configured-admin-email>` / `<configured-admin-password>`
 
 ### 👨‍⚕️ **Doctor Login**
 - **Email + Password**:
@@ -56,7 +56,7 @@
 
 ## 🚀 **Quick Test**
 Try logging in as:
-1. **Admin**: `praveen@stellaronehealth.com` / `dummy123`
+1. **Admin**: `<configured-admin-email>` / `<configured-admin-password>`
 2. **Doctor**: `doctor@demo.com` / `doctor123`
 3. **ASHA**: `asha@demo.com` / `asha123`
 4. **Patient**: `patient@demo.com` / `patient123`

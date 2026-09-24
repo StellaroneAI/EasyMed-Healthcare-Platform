@@ -60,7 +60,7 @@ All login methods work exactly as before:
 | **Patient** | `patient@demo.com` / `patient123` | Any 10-digit + `123456` |
 | **ASHA** | `asha@demo.com` / `asha123` | Any 10-digit + `123456` |
 | **Doctor** | `doctor@demo.com` / `doctor123` | Any 10-digit + `123456` |
-| **Admin** | `admin@easymed.in` / `admin123` | `9060328119` + any email |
+| **Admin** | `<configured-admin-email>` / `<configured-admin-password>` | `<configured-admin-phone>` + any email |
 
 ### **🎯 Preserved Functionality**
 - ✅ Role-based dashboards

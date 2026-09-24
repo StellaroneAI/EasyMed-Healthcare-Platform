@@ -17,7 +17,7 @@ This update removes all test/demo data from EasyMed and integrates real authenti
 
 ### Test/Demo Items Eliminated
 - 200+ fake patients, 50+ ASHA workers, 40+ doctors
-- Hardcoded admin credentials (`9060328119`, `admin@demo.com`, etc.)
+- Hardcoded admin credentials (`<configured-admin-phone>`, `admin@demo.com`, etc.)
 - Mock OTP system (always accepted `123456`)
 - Demo government schemes and test appointments
 
@@ -106,9 +106,9 @@ VITE_MONGODB_URI=your_mongodb_connection_string
 
 ### Admin Users
 - Pre-configured admin credentials still work
-- Email: `praveen@stellaronehealth.com` / Password: `dummy123`
-- Email: `admin@easymed.in` / Password: `admin123`
-- Phone: `+919060328119` (with OTP)
+- Email: `<configured-admin-email>` / Password: `<configured-admin-password>`
+- Email: `<configured-admin-email>` / Password: `<configured-admin-password>`
+- Phone: `+91<configured-admin-phone>` (with OTP)
 
 ### ABHA Integration
 - Patients can link their ABHA profiles

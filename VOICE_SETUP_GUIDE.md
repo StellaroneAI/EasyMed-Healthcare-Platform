@@ -29,7 +29,7 @@ Your EasyMedPro now supports **advanced multilingual voice capabilities** using 
 
 2. Edit `.env` file and add your OpenAI key:
    ```env
-   VITE_OPENAI_API_KEY=sk-your-actual-openai-api-key-here
+   VITE_AI_API_BASE_URL=http://localhost:3001/api/ai
    ```
 
 ### **Step 3: Install and Test**

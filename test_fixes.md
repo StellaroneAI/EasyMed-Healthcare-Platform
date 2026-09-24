@@ -102,8 +102,8 @@ if (currentLanguage === 'tamil') {
 - [ ] Fallback to English works if Tamil fails
 
 ### **Admin Login (Still Works):**
-- [ ] Email: `praveen@stellaronehealth.com` / Password: `dummy123`
-- [ ] Phone: `9060328119` (auto-login)
+- [ ] Email: `<configured-admin-email>` / Password: `<configured-admin-password>`
+- [ ] Phone: `<configured-admin-phone>` (auto-login)
 
 ---
 

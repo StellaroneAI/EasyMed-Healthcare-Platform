@@ -5,22 +5,22 @@
 I have successfully updated your EasyMed project to provide admin login access for the specified credentials:
 
 ### Admin Login Credentials Added:
-1. **Phone Number**: 9060328119 (Auto-login for admin)
-2. **Email**: praveen@stellaronehealth.com with password: dummy123
+1. **Phone Number**: <configured-admin-phone> (Auto-login for admin)
+2. **Email**: <configured-admin-email> with password: <configured-admin-password>
 
 ### Files Modified:
 
 #### 1. AdminContext.tsx (`src/contexts/AdminContext.tsx`)
 - **Enhanced loginAdmin function**: Now accepts identifier (phone or email), userInfo, and password
-- **Added super admin emails array**: Includes 'praveen@stellaronehealth.com'
-- **Added admin passwords array**: Includes 'dummy123' 
+- **Added super admin emails array**: Includes '<configured-admin-email>'
+- **Added admin passwords array**: Includes '<configured-admin-password>' 
 - **Updated isSuperAdmin logic**: Now checks both phone and email
 - **Enhanced authentication**: Supports both phone-based and email-based login
-- **Special handling for Praveen**: When logging in with praveen@stellaronehealth.com, displays "Praveen - StellarOne Health"
+- **Special handling for Praveen**: When logging in with <configured-admin-email>, displays "Praveen - StellarOne Health"
 
 #### 2. LoginPage.tsx (`src/components/LoginPage.tsx`)
-- **Updated email validation**: Now includes 'praveen@stellaronehealth.com'
-- **Updated password validation**: Now includes 'dummy123'
+- **Updated email validation**: Now includes '<configured-admin-email>'
+- **Updated password validation**: Now includes '<configured-admin-password>'
 - **Enhanced user info creation**: Properly handles name display for Praveen
 - **Updated error messages**: Shows both admin emails and passwords
 - **Updated Admin Privilege Indicator**: Displays all valid login options
@@ -28,13 +28,13 @@ I have successfully updated your EasyMed project to provide admin login access f
 ### Current Admin Login Options:
 
 #### Phone Login:
-- **Phone**: 9060328119 (Auto-login, no OTP required for admin)
+- **Phone**: <configured-admin-phone> (Auto-login, no OTP required for admin)
 
 #### Email Login:
-- **Email**: admin@easymed.in | **Password**: admin123
-- **Email**: praveen@stellaronehealth.com | **Password**: dummy123
-- **Email**: admin@gmail.com | **Password**: easymed2025
-- **Email**: superadmin@easymed.in | **Password**: admin@123
+- **Email**: <configured-admin-email> | **Password**: <configured-admin-password>
+- **Email**: <configured-admin-email> | **Password**: <configured-admin-password>
+- **Email**: <configured-admin-email> | **Password**: <configured-admin-password>
+- **Email**: super<configured-admin-email> | **Password**: <configured-admin-password>
 
 ### How to Test:
 
@@ -43,12 +43,12 @@ I have successfully updated your EasyMed project to provide admin login access f
 3. **Select "Admin/NGO" user type**
 4. **For Praveen's access**:
    - Select "Login with Email" 
-   - Enter email: praveen@stellaronehealth.com
-   - Enter password: dummy123
+   - Enter email: <configured-admin-email>
+   - Enter password: <configured-admin-password>
    - Click Login
 5. **For phone access**:
    - Select "Login with Phone"
-   - Enter: 9060328119
+   - Enter: <configured-admin-phone>
    - Click "Auto Login" (no OTP required)
 
 ### Features Implemented:
@@ -58,7 +58,7 @@ I have successfully updated your EasyMed project to provide admin login access f
 ✅ **User-friendly Interface**: Clear instructions and error messages
 ✅ **Admin Privilege Display**: Shows all valid login methods
 ✅ **Personalized Experience**: Special name display for Praveen
-✅ **Auto-login for Phone**: 9060328119 bypasses OTP for convenience
+✅ **Auto-login for Phone**: <configured-admin-phone> bypasses OTP for convenience
 ✅ **Backward Compatibility**: All existing admin credentials still work
 
 ### Security Notes:
@@ -67,4 +67,4 @@ I have successfully updated your EasyMed project to provide admin login access f
 - Local storage is used for session management
 - All admin users get super_admin role and full permissions
 
-The implementation is complete and ready for use. Both specified credentials (phone: 9060328119 and email: praveen@stellaronehealth.com with password: dummy123) will provide full admin access to the EasyMed system.
+The implementation is complete and ready for use. Both specified credentials (phone: <configured-admin-phone> and email: <configured-admin-email> with password: <configured-admin-password>) will provide full admin access to the EasyMed system.

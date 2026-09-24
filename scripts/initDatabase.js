@@ -54,7 +54,7 @@ setTimeout(() => {
               console.log('   📧 Email: patient@demo.com / patient123');
               console.log('   📧 Email: asha@demo.com / asha123');
               console.log('   📧 Email: doctor@demo.com / doctor123');
-              console.log('   👑 Admin: admin@easymed.in / admin123');
+              console.log('   👑 Admin: <configured-admin-email> / <configured-admin-password>');
               console.log('\n🎉 Ready to test the application!');
             }, 1000);
           }, 1000);

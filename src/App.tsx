@@ -60,7 +60,7 @@ function AppContent() {
       if (identifier) {
         setTimeout(async () => {
           try {
-            await loginAdmin(identifier, userInfo, 'dummy123');
+            await loginAdmin(identifier, userInfo);
           } catch (error) {
             console.log('Admin context login error:', error);
           }

@@ -101,9 +101,9 @@ npm run dev
 ```
 
 ### Testing Credentials
-- **Admin Phone**: 9060328119 (Auto-login)
-- **Admin Email**: admin@easymed.in / admin123
-- **Alternative**: admin@gmail.com / easymed2025
+- **Admin Phone**: <configured-admin-phone> (Auto-login)
+- **Admin Email**: <configured-admin-email> / <configured-admin-password>
+- **Alternative**: <configured-admin-email> / <configured-admin-password>
 
 ## 🎨 UI/UX Improvements Implemented
 
