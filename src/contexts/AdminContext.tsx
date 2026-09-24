@@ -34,67 +34,71 @@ const DEFAULT_PERMISSIONS = {
   coordinator: ['view_data','basic_edit','basic_reports'],
 };
 
+function mapAdmin(data: any): AdminUser {
+  const role = data.user.role === 'super_admin' ? 'super_admin' : 'admin';
+  return {
+    id: data.user.userId || data.user.id,
+    name: data.user.name || 'EasyMed Administrator',
+    phone: data.user.phone || '',
+    email: data.user.email,
+    designation: 'System Administrator',
+    role,
+    permissions: role === 'super_admin' ? DEFAULT_PERMISSIONS.super_admin : DEFAULT_PERMISSIONS.admin,
+    createdAt: new Date(),
+    isActive: true,
+  };
+}
+
+function mapTeam(data: any): AdminUser[] {
+  return Array.isArray(data?.team) ? data.team.map((member: any) => ({
+    ...member,
+    createdAt: member.createdAt ? new Date(member.createdAt) : new Date(),
+  })) : [];
+}
+
 export function AdminProvider({ children }: { children: React.ReactNode }) {
   const [currentAdmin, setCurrentAdmin] = useState<AdminUser | null>(null);
   const [adminTeam, setAdminTeam] = useState<AdminUser[]>([]);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
 
+  const loadTeam = async () => {
+    const response = await fetch('/api/admin/team', { credentials: 'include' });
+    if (!response.ok) return;
+    setAdminTeam(mapTeam(await response.json()));
+  };
+
   useEffect(() => {
     fetch('/api/auth/me', { credentials: 'include' })
       .then(async response => {
-        if (!response.ok) return null;
+        if (!response.ok) return;
         const data = await response.json();
         if (data.authenticated && data.user?.userType === 'admin') {
-          const user: AdminUser = {
-            id: data.user.userId,
-            name: data.user.name,
-            phone: data.user.phone || '',
-            email: data.user.email,
-            designation: 'System Administrator',
-            role: data.user.role === 'super_admin' ? 'super_admin' : 'admin',
-            permissions: data.user.role === 'super_admin' ? DEFAULT_PERMISSIONS.super_admin : DEFAULT_PERMISSIONS.admin,
-            createdAt: new Date(),
-            isActive: true,
-          };
-          setCurrentAdmin(user);
+          setCurrentAdmin(mapAdmin(data));
           setIsAdminAuthenticated(true);
+          await loadTeam();
         }
       })
       .catch(() => undefined);
-
   }, []);
 
   const isSuperAdmin = currentAdmin?.role === 'super_admin';
 
   const loginAdmin = async (identifier: string, userInfo?: any, password?: string): Promise<boolean> => {
     try {
-      let response: Response;
-      if (password) {
-        response = await fetch('/api/auth/admin', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ email: identifier, password }),
-        });
-      } else {
-        response = await fetch('/api/auth/me', { credentials: 'include' });
-      }
+      const response = password
+        ? await fetch('/api/auth/admin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ email: identifier, password }),
+          })
+        : await fetch('/api/auth/me', { credentials: 'include' });
       if (!response.ok) return false;
       const data = await response.json();
-      if (!data.user) return false;
-      const admin: AdminUser = {
-        id: data.user.id,
-        name: data.user.name || userInfo?.name || 'EasyMed Administrator',
-        phone: data.user.phone || userInfo?.phone || '',
-        email: data.user.email || userInfo?.email,
-        designation: 'System Administrator',
-        role: data.user.role === 'super_admin' ? 'super_admin' : 'admin',
-        permissions: data.user.role === 'super_admin' ? DEFAULT_PERMISSIONS.super_admin : DEFAULT_PERMISSIONS.admin,
-        createdAt: new Date(),
-        isActive: true,
-      };
-      setCurrentAdmin(admin);
+      if (!data.user || data.user.userType !== 'admin') return false;
+      setCurrentAdmin(mapAdmin(data));
       setIsAdminAuthenticated(true);
+      await loadTeam();
       return true;
     } catch {
       return false;
@@ -104,48 +108,43 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   const logoutAdmin = () => {
     void fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
     setCurrentAdmin(null);
+    setAdminTeam([]);
     setIsAdminAuthenticated(false);
   };
 
   const addTeamMember = async (memberData: Omit<AdminUser, 'id' | 'createdAt'>): Promise<boolean> => {
     if (!isSuperAdmin) return false;
     const response = await fetch('/api/admin/team', {
-      method: 'POST',
-      credentials: 'include',
+      method: 'POST', credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(memberData),
     });
     if (!response.ok) return false;
-    const data = await response.json();
-    setAdminTeam(data.team || []);
+    setAdminTeam(mapTeam(await response.json()));
     return true;
   };
 
   const updateTeamMember = async (id: string, updates: Partial<AdminUser>): Promise<boolean> => {
     if (!isSuperAdmin) return false;
     const response = await fetch('/api/admin/team', {
-      method: 'PATCH',
-      credentials: 'include',
+      method: 'PATCH', credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, updates }),
     });
     if (!response.ok) return false;
-    const data = await response.json();
-    setAdminTeam(data.team || []);
+    setAdminTeam(mapTeam(await response.json()));
     return true;
   };
 
   const removeTeamMember = async (id: string): Promise<boolean> => {
     if (!isSuperAdmin) return false;
     const response = await fetch('/api/admin/team', {
-      method: 'DELETE',
-      credentials: 'include',
+      method: 'DELETE', credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),
     });
     if (!response.ok) return false;
-    const data = await response.json();
-    setAdminTeam(data.team || []);
+    setAdminTeam(mapTeam(await response.json()));
     return true;
   };
 
