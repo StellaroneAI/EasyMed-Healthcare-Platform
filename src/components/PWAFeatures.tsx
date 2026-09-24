@@ -58,7 +58,7 @@ export default function PWAFeatures() {
 
   const sendTestNotification = () => {
     if ('Notification' in window && Notification.permission === 'granted') {
-      const notification = new Notification('EasyMedPro Health Reminder', {
+      const notification = new Notification('EasyMedPro Health Reminder', ({
         body: 'Time to take your medication! 💊',
         icon: '/favicon.ico',
         badge: '/favicon.ico',
@@ -80,7 +80,7 @@ export default function PWAFeatures() {
   const enableBackgroundSync = () => {
     if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
       navigator.serviceWorker.ready.then(registration => {
-        return registration.sync.register('background-health-sync');
+        return (registration as ServiceWorkerRegistration & { sync: { register: (tag: string) => Promise<void> } }).sync.register('background-health-sync');
       });
     }
   };
