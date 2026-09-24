@@ -237,7 +237,7 @@ class ABHAService {
   }
 
   // Fetch Health Records
-  async getHealthRecords(healthId: string, accessToken: string): Promise<ABHAHealthRecord[]> {
+  async getHealthRecords(healthId: string, _accessToken?: string): Promise<ABHAHealthRecord[]> {
     try {
       const response = await fetch(`${this.baseUrl}/v2/patients/health-records`, {
         method: 'GET',
@@ -353,7 +353,7 @@ class ABHAService {
   async addFamilyMember(
     primaryHealthId: string, 
     memberData: Omit<ABHAFamilyMember, 'isLinked' | 'consentGiven'>,
-    accessToken: string
+    _accessToken?: string
   ): Promise<boolean> {
     try {
       const response = await fetch(`${this.baseUrl}/v2/family/add-member`, {
@@ -377,7 +377,7 @@ class ABHAService {
   }
 
   // Get Family Members
-  async getFamilyMembers(healthId: string, accessToken: string): Promise<ABHAFamilyMember[]> {
+  async getFamilyMembers(healthId: string, _accessToken?: string): Promise<ABHAFamilyMember[]> {
     try {
       const response = await fetch(`${this.baseUrl}/v2/family/members`, {
         method: 'GET',
@@ -403,7 +403,7 @@ class ABHAService {
   async linkFamilyMemberABHA(
     primaryHealthId: string,
     memberHealthId: string,
-    accessToken: string
+    _accessToken?: string
   ): Promise<boolean> {
     try {
       const response = await fetch(`${this.baseUrl}/v2/family/link`, {
@@ -434,7 +434,7 @@ class ABHAService {
     doctorId: string,
     sessionType: 'VIDEO' | 'AUDIO' | 'CHAT',
     scheduledTime: string,
-    accessToken: string
+    _accessToken?: string
   ): Promise<TelemedicineSession | null> {
     try {
       const response = await fetch(`${this.baseUrl}/v2/telemedicine/schedule`, {
@@ -464,7 +464,7 @@ class ABHAService {
   }
 
   // Get Telemedicine Sessions
-  async getTelemedicineSessions(healthId: string, accessToken: string): Promise<TelemedicineSession[]> {
+  async getTelemedicineSessions(healthId: string, _accessToken?: string): Promise<TelemedicineSession[]> {
     try {
       const response = await fetch(`${this.baseUrl}/v2/telemedicine/sessions`, {
         method: 'GET',
@@ -487,7 +487,7 @@ class ABHAService {
   }
 
   // Join Telemedicine Session
-  async joinTelemedicineSession(sessionId: string, accessToken: string): Promise<{ meetingUrl: string } | null> {
+  async joinTelemedicineSession(sessionId: string, _accessToken?: string): Promise<{ meetingUrl: string } | null> {
     try {
       const response = await fetch(`${this.baseUrl}/v2/telemedicine/join/${sessionId}`, {
         method: 'POST',
@@ -515,7 +515,7 @@ class ABHAService {
     healthId: string,
     claimData: Omit<InsuranceClaim, 'claimId' | 'status' | 'submissionDate'>,
     documents: File[],
-    accessToken: string
+    _accessToken?: string
   ): Promise<InsuranceClaim | null> {
     try {
       const formData = new FormData();
@@ -547,7 +547,7 @@ class ABHAService {
   }
 
   // Get Insurance Claims
-  async getInsuranceClaims(healthId: string, accessToken: string): Promise<InsuranceClaim[]> {
+  async getInsuranceClaims(healthId: string, _accessToken?: string): Promise<InsuranceClaim[]> {
     try {
       const response = await fetch(`${this.baseUrl}/v2/insurance/claims`, {
         method: 'GET',
@@ -574,7 +574,7 @@ class ABHAService {
     healthId: string,
     policyNumber: string,
     insuranceProvider: string,
-    accessToken: string
+    _accessToken?: string
   ): Promise<{ eligible: boolean; coverageAmount?: number; policyStatus?: string }> {
     try {
       const response = await fetch(`${this.baseUrl}/v2/insurance/eligibility`, {
@@ -605,7 +605,7 @@ class ABHAService {
   // === AI HEALTH SCORING ===
 
   // Generate Health Score
-  async generateHealthScore(healthId: string, accessToken: string): Promise<HealthScore | null> {
+  async generateHealthScore(healthId: string, _accessToken?: string): Promise<HealthScore | null> {
     try {
       const response = await fetch(`${this.baseUrl}/v2/ai/health-score`, {
         method: 'POST',
@@ -631,7 +631,7 @@ class ABHAService {
   }
 
   // Get Health Insights
-  async getHealthInsights(healthId: string, accessToken: string): Promise<string[]> {
+  async getHealthInsights(healthId: string, _accessToken?: string): Promise<string[]> {
     try {
       const response = await fetch(`${this.baseUrl}/v2/ai/insights`, {
         method: 'GET',
@@ -661,7 +661,7 @@ class ABHAService {
     healthId: string,
     location: { latitude: number; longitude: number },
     emergencyType: 'MEDICAL' | 'ACCIDENT' | 'CARDIAC' | 'STROKE' | 'OTHER',
-    accessToken: string
+    _accessToken?: string
   ): Promise<{ emergencyId: string; estimatedArrival: number } | null> {
     try {
       const response = await fetch(`${this.baseUrl}/v2/emergency/108`, {
@@ -694,7 +694,7 @@ class ABHAService {
   async shareEmergencyHealthInfo(
     healthId: string,
     emergencyContacts: string[],
-    accessToken: string
+    _accessToken?: string
   ): Promise<boolean> {
     try {
       const response = await fetch(`${this.baseUrl}/v2/emergency/share-info`, {
