@@ -11,7 +11,7 @@ export async function enforceRateLimit(key: string): Promise<{ allowed: boolean;
   const expiresAt = new Date(windowEndMs + 60_000);
 
   const db = await getDb();
-  const result: any = await db.collection('rate_limits').findOneAndUpdate(
+  const result = await (db.collection('rate_limits') as any).findOneAndUpdate(
     { _id: bucketKey },
     {
       $inc: { count: 1 },
@@ -20,7 +20,7 @@ export async function enforceRateLimit(key: string): Promise<{ allowed: boolean;
     { upsert: true, returnDocument: 'after' }
   );
 
-  const count = Number(result?.count || 1);
+  const count = Number(result?.value?.count ?? result?.count ?? 1);
   if (count <= MAX_ATTEMPTS) return { allowed: true, retryAfterSeconds: 0 };
 
   return {
