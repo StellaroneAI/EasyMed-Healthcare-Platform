@@ -93,10 +93,7 @@ export default function FamilyManagement() {
 
     setIsLoading(true);
     try {
-      const tokens = localStorage.getItem('abha_tokens');
-      if (tokens) {
-        const { accessToken } = JSON.parse(tokens);
-        const members = await abhaService.getFamilyMembers(abhaProfile.healthId, accessToken);
+      const members = await abhaService.getFamilyMembers(abhaProfile.healthId, '');
         setFamilyMembers(members);
       }
     } catch (error) {
@@ -111,11 +108,7 @@ export default function FamilyManagement() {
 
     setIsLoading(true);
     try {
-      const tokens = localStorage.getItem('abha_tokens');
-      if (tokens) {
-        const { accessToken } = JSON.parse(tokens);
-        
-        const memberData = {
+      const memberData = {
           relationshipType: newMember.relationshipType,
           healthId: newMember.healthId || `FM_${Date.now()}`,
           name: newMember.name,
@@ -126,9 +119,7 @@ export default function FamilyManagement() {
 
         const success = await abhaService.addFamilyMember(
           abhaProfile.healthId,
-          memberData,
-          accessToken
-        );
+          memberData, '');
 
         if (success) {
           await loadFamilyMembers();
@@ -155,14 +146,9 @@ export default function FamilyManagement() {
 
     setIsLoading(true);
     try {
-      const tokens = localStorage.getItem('abha_tokens');
-      if (tokens) {
-        const { accessToken } = JSON.parse(tokens);
-        await abhaService.linkFamilyMemberABHA(
+      await abhaService.linkFamilyMemberABHA(
           abhaProfile.healthId,
-          memberHealthId,
-          accessToken
-        );
+          memberHealthId, '');
         await loadFamilyMembers();
       }
     } catch (error) {
