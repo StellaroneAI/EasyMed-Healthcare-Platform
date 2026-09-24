@@ -154,7 +154,7 @@ export default function PatientDashboard({ userInfo, onLogout }: PatientDashboar
             <div className="flex items-center space-x-3">
               <select 
                 value={currentLanguage}
-                onChange={(e) => setLanguage(e.target.value as keyof typeof languages)}
+                onChange={(e) => setLanguage(e.target.value as import('../translations').LanguageKey)}
                 className="px-3 py-2 text-xs sm:text-sm border-0 rounded-xl bg-white/80 backdrop-blur-sm shadow-lg min-w-[90px] font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none"
               >
                 {Object.entries(languages).map(([key, name]) => (
@@ -373,10 +373,7 @@ export default function PatientDashboard({ userInfo, onLogout }: PatientDashboar
 
       {/* Movable Floating Button */}
       <MovableFloatingButton
-        onEmergencyCall={handleEmergencyCall}
-        onDoctorCall={handleDoctorCall}
-        onMedicineCheck={handleMedicineCheck}
-        onVitalsCheck={handleVitalsCheck}
+        onQuickAction={(action) => { if (action === 'emergency') handleEmergencyCall(); else if (action === 'doctor') handleDoctorCall(); else if (action === 'medicine') handleMedicineCheck(); else handleVitalsCheck(); }}
       />
     </div>
   );
