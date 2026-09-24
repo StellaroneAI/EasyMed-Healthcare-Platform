@@ -191,7 +191,6 @@ class ABHAService {
       const response = await fetch(`${this.baseUrl}/v2/account/profile`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
           'X-CM-ID': this.clientId,
           'X-HIP-ID': healthId
         }
@@ -242,7 +241,6 @@ class ABHAService {
       const response = await fetch(`${this.baseUrl}/v2/patients/health-records`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
           'X-CM-ID': this.clientId,
           'X-HIP-ID': healthId
         }
@@ -360,7 +358,6 @@ class ABHAService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
           'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
@@ -382,7 +379,6 @@ class ABHAService {
       const response = await fetch(`${this.baseUrl}/v2/family/members`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
           'X-CM-ID': this.clientId,
           'X-HIP-ID': healthId
         }
@@ -410,7 +406,6 @@ class ABHAService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
           'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
@@ -441,7 +436,6 @@ class ABHAService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
           'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
@@ -469,7 +463,6 @@ class ABHAService {
       const response = await fetch(`${this.baseUrl}/v2/telemedicine/sessions`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
           'X-CM-ID': this.clientId,
           'X-HIP-ID': healthId
         }
@@ -492,7 +485,6 @@ class ABHAService {
       const response = await fetch(`${this.baseUrl}/v2/telemedicine/join/${sessionId}`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
           'X-CM-ID': this.clientId,
         }
       });
@@ -529,7 +521,6 @@ class ABHAService {
       const response = await fetch(`${this.baseUrl}/v2/insurance/claims/submit`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
           'X-CM-ID': this.clientId,
         },
         body: formData
@@ -552,7 +543,6 @@ class ABHAService {
       const response = await fetch(`${this.baseUrl}/v2/insurance/claims`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
           'X-CM-ID': this.clientId,
           'X-HIP-ID': healthId
         }
@@ -581,7 +571,6 @@ class ABHAService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
           'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
@@ -611,7 +600,6 @@ class ABHAService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
           'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
@@ -636,7 +624,6 @@ class ABHAService {
       const response = await fetch(`${this.baseUrl}/v2/ai/insights`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
           'X-CM-ID': this.clientId,
           'X-HIP-ID': healthId
         }
@@ -668,7 +655,6 @@ class ABHAService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
           'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
@@ -701,7 +687,6 @@ class ABHAService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
           'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
