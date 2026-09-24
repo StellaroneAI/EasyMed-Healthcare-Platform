@@ -145,10 +145,7 @@ export default function InsuranceClaims() {
 
     setIsLoading(true);
     try {
-      const tokens = localStorage.getItem('abha_tokens');
-      if (tokens) {
-        const { accessToken } = JSON.parse(tokens);
-        const claimsData = await abhaService.getInsuranceClaims(abhaProfile.healthId, accessToken);
+      const claimsData = await abhaService.getInsuranceClaims(abhaProfile.healthId, '');
         setClaims(claimsData);
       }
     } catch (error) {
@@ -163,11 +160,7 @@ export default function InsuranceClaims() {
 
     setIsLoading(true);
     try {
-      const tokens = localStorage.getItem('abha_tokens');
-      if (tokens) {
-        const { accessToken } = JSON.parse(tokens);
-        
-        const claimData = {
+      const claimData = {
           patientId: abhaProfile.healthId,
           treatmentType: newClaim.treatmentType,
           hospitalName: newClaim.hospitalName,
@@ -180,7 +173,7 @@ export default function InsuranceClaims() {
           }))
         };
 
-        const claimId = await abhaService.submitInsuranceClaim(claimData, accessToken);
+        const claimId = await abhaService.submitInsuranceClaim(claimData, '');
         
         if (claimId) {
           await loadInsuranceClaims();
@@ -200,14 +193,9 @@ export default function InsuranceClaims() {
 
     setIsLoading(true);
     try {
-      const tokens = localStorage.getItem('abha_tokens');
-      if (tokens) {
-        const { accessToken } = JSON.parse(tokens);
-        const eligibility = await abhaService.checkInsuranceEligibility(
+      const eligibility = await abhaService.checkInsuranceEligibility(
           abhaProfile.healthId,
-          newClaim.treatmentType || 'General Consultation',
-          accessToken
-        );
+          newClaim.treatmentType || 'General Consultation', '');
         setEligibilityData(eligibility);
         setShowEligibilityCheck(true);
       }
