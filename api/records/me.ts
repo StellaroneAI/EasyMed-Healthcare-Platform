@@ -25,8 +25,12 @@ export async function POST(request: Request): Promise<Response> {
     const title = clean(body?.title, 200);
     const content = clean(body?.content, 5000);
     if (!patientId || !recordType || !title || !content) return json({ error: 'patientId, recordType, title and content are required.' }, { status: 400 });
-    const record = { id: crypto.randomUUID(), patientId, ...(auth.userType === 'doctor' ? { doctorId: auth.userId } : (clean(body?.doctorId, 100) ? { doctorId: clean(body.doctorId, 100) } : {})), recordType, title, content, diagnosis: clean(body?.diagnosis, 1000), createdBy: auth.userId, createdAt: new Date(), updatedAt: new Date() };
     const db = await getDb();
+    if (auth.userType === 'doctor') {
+      const relationship = await db.collection('appointments').findOne({ patientId, doctorId: auth.userId });
+      if (!relationship) return json({ error: 'Doctor is not authorized for this patient.' }, { status: 403 });
+    }
+    const record = { id: crypto.randomUUID(), patientId, ...(auth.userType === 'doctor' ? { doctorId: auth.userId } : (clean(body?.doctorId, 100) ? { doctorId: clean(body.doctorId, 100) } : {})), recordType, title, content, diagnosis: clean(body?.diagnosis, 1000), createdBy: auth.userId, createdAt: new Date(), updatedAt: new Date() };
     await db.collection('medical_records').insertOne(record);
     await audit({ actorId: auth.userId, actorRole: auth.userType, action: 'medical_records.create', resource: record.id, outcome: 'success' });
     return json({ success: true, record }, { status: 201 });
