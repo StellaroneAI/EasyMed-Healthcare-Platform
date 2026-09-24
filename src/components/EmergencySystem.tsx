@@ -166,7 +166,7 @@ export default function EmergencySystem() {
     // Announce emergency alert
     if ('speechSynthesis' in window) {
       const utterance = new SpeechSynthesisUtterance(
-        `Emergency alert sent. Help is on the way. Your location has been shared with emergency contacts.`
+        `Emergency mode activated. Please contact local emergency services directly.`
       );
       utterance.rate = 1.0;
       utterance.volume = 1.0;
