@@ -3,6 +3,7 @@ import { requireEnv } from '../_lib/env';
 import { createSession, sessionCookie } from '../_lib/session';
 import { json, methodNotAllowed } from '../_lib/response';
 import { audit } from '../_lib/audit';
+import { enforceRateLimit } from '../_lib/rateLimit';
 
 function verifyPassword(password: string, stored: string): boolean {
   const [salt, encoded] = stored.split('$');
@@ -18,6 +19,8 @@ export async function POST(request: Request): Promise<Response> {
     if (typeof email !== 'string' || typeof password !== 'string') {
       return json({ error: 'Email and password are required.' }, { status: 400 });
     }
+    const limit = await enforceRateLimit(`admin:login:${email.trim().toLowerCase()}`);
+    if (!limit.allowed) return json({ error: 'Too many login attempts. Try again later.' }, { status: 429, headers: { 'Retry-After': String(limit.retryAfterSeconds) } });
     const configuredEmail = requireEnv('ADMIN_EMAIL').trim().toLowerCase();
     const passwordHash = requireEnv('ADMIN_PASSWORD_HASH');
     if (email.trim().toLowerCase() !== configuredEmail || !verifyPassword(password, passwordHash)) {
