@@ -1,18 +1,11 @@
-const STORAGE_PREFIX = 'easymed_db_';
+const inMemoryCollections: Record<string, any[]> = {};
 
 function readCollection<T>(name: string): T[] {
-  const raw = localStorage.getItem(`${STORAGE_PREFIX}${name}`);
-  if (!raw) return [];
-  try {
-    return JSON.parse(raw) as T[];
-  } catch (error) {
-    console.error(`Failed to parse ${name} collection:`, error);
-    return [];
-  }
+  return [...(inMemoryCollections[name] || [])] as T[];
 }
 
 function writeCollection<T>(name: string, data: T[]): void {
-  localStorage.setItem(`${STORAGE_PREFIX}${name}`, JSON.stringify(data));
+  inMemoryCollections[name] = [...data] as any[];
 }
 
 export async function connectDB(): Promise<any> {
@@ -253,9 +246,9 @@ export class DatabaseService {
     if (!this.isConnected) {
       throw new Error('Database not connected');
     }
-    ['patients', 'ashaworkers', 'doctors', 'appointments', 'schemes'].forEach((name) =>
-      localStorage.removeItem(`${STORAGE_PREFIX}${name}`)
-    );
+    ['patients', 'ashaworkers', 'doctors', 'appointments', 'schemes'].forEach((name) => {
+      inMemoryCollections[name] = [];
+    });
   }
 
   async init(): Promise<void> {
