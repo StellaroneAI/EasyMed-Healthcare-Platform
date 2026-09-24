@@ -81,12 +81,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
           body: JSON.stringify({ email: identifier, password }),
         });
       } else {
-        response = await fetch('/api/auth/verify-otp', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ phone: identifier, otp: userInfo?.otp, userType: 'admin', name: userInfo?.name }),
-        });
+        response = await fetch('/api/auth/me', { credentials: 'include' });
       }
       if (!response.ok) return false;
       const data = await response.json();
