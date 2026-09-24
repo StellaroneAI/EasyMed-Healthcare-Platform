@@ -1,5 +1,5 @@
 import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
-import { requireEnv } from './env';
+import { requireEnv } from './env.js';
 
 const ALGORITHM = 'aes-256-gcm';
 function key(): Buffer {
