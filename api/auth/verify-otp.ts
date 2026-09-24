@@ -36,9 +36,9 @@ export async function POST(request: Request): Promise<Response> {
         userType: 'admin',
         name: process.env.ADMIN_NAME || 'EasyMed Administrator',
         phone,
-        role: 'admin',
+        role: process.env.ADMIN_ROLE === 'super_admin' ? 'super_admin' : 'admin',
       });
-      return json({ success: true, user: { id: 'admin', name: process.env.ADMIN_NAME || 'EasyMed Administrator', phone, userType: 'admin', role: 'admin' } }, {
+      return json({ success: true, user: { id: 'admin', name: process.env.ADMIN_NAME || 'EasyMed Administrator', phone, userType: 'admin', role: process.env.ADMIN_ROLE === 'super_admin' ? 'super_admin' : 'admin' } }, {
         headers: { 'Set-Cookie': sessionCookie(session) },
       });
     }
