@@ -3,6 +3,7 @@ import { checkVerification } from '../_lib/twilio';
 import { createSession, sessionCookie } from '../_lib/session';
 import { getDb } from '../_lib/mongo';
 import { audit } from '../_lib/audit';
+import { enforceRateLimit } from '../_lib/rateLimit';
 
 export async function POST(request: Request): Promise<Response> {
   try {
@@ -16,6 +17,8 @@ export async function POST(request: Request): Promise<Response> {
     ) {
       return json({ error: 'Invalid verification request.' }, { status: 400 });
     }
+    const limit = await enforceRateLimit(`otp:verify:${phone}`);
+    if (!limit.allowed) return json({ error: 'Too many verification attempts. Try again later.' }, { status: 429, headers: { 'Retry-After': String(limit.retryAfterSeconds) } });
     if (!await checkVerification(phone, otp)) {
       await audit({ actorId: phone, actorRole: userType, action: 'auth.otp.verify', resource: 'authentication', outcome: 'denied' });
       return json({ error: 'Invalid or expired OTP.' }, { status: 401 });
