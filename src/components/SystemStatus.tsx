@@ -1,1 +1,1 @@
-export default function SystemStatus(){return <div className="p-6 bg-white rounded-xl border"><h2 className="text-xl font-semibold">System Status</h2><p className="text-gray-600 mt-2">Service status is provided by deployment and monitoring infrastructure.</p></div>}
+export default function SystemStatus(_props: { onClose?: () => void }){return <div className="p-6 bg-white rounded-xl border"><h2 className="text-xl font-semibold">System Status</h2><p className="text-gray-600 mt-2">Service status is provided by deployment and monitoring infrastructure.</p></div>}
