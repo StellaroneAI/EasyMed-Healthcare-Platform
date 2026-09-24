@@ -99,13 +99,9 @@ export interface HealthScore {
 
 class ABHAService {
   private baseUrl: string;
-  private clientId: string;
-  private clientSecret: string;
 
   constructor() {
     this.baseUrl = '/api/abha/proxy?path=';
-    this.clientId = '';
-    this.clientSecret = '';
   }
 
   // Step 1: Generate ABHA Number using Aadhaar
@@ -115,7 +111,6 @@ class ABHAService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
           aadhaar: aadhaarNumber,
@@ -141,7 +136,6 @@ class ABHAService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
           txnId: txnId,
