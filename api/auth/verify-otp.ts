@@ -1,9 +1,9 @@
-import { json, methodNotAllowed } from '../_lib/response';
-import { checkVerification } from '../_lib/twilio';
-import { createSession, sessionCookie } from '../_lib/session';
-import { getDb } from '../_lib/mongo';
-import { audit } from '../_lib/audit';
-import { enforceRateLimit } from '../_lib/rateLimit';
+import { json, methodNotAllowed } from '../_lib/response.js';
+import { checkVerification } from '../_lib/twilio.js';
+import { createSession, sessionCookie } from '../_lib/session.js';
+import { getDb } from '../_lib/mongo.js';
+import { audit } from '../_lib/audit.js';
+import { enforceRateLimit } from '../_lib/rateLimit.js';
 
 export async function POST(request: Request): Promise<Response> {
   try {
