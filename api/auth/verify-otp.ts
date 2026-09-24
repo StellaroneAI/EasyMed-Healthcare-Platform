@@ -59,7 +59,7 @@ export async function POST(request: Request): Promise<Response> {
         createdAt: new Date(),
         updatedAt: new Date(),
       };
-      await db.collection(collection).insertOne(record);
+      await db.collection(collection).insertOne(record as any);
       user = record;
     }
 
