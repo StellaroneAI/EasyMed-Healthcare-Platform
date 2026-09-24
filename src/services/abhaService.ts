@@ -161,7 +161,6 @@ class ABHAService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
           mobile: mobile
@@ -185,7 +184,6 @@ class ABHAService {
       const response = await fetch(`${this.baseUrl}/v2/account/profile`, {
         method: 'GET',
         headers: {
-          'X-CM-ID': this.clientId,
           'X-HIP-ID': healthId
         }
       });
@@ -208,7 +206,6 @@ class ABHAService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
           healthid: healthId,
@@ -235,7 +232,6 @@ class ABHAService {
       const response = await fetch(`${this.baseUrl}/v2/patients/health-records`, {
         method: 'GET',
         headers: {
-          'X-CM-ID': this.clientId,
           'X-HIP-ID': healthId
         }
       });
@@ -258,13 +254,12 @@ class ABHAService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
           consent: {
             purpose: purpose,
             patient: { id: healthId },
-            hiu: { id: this.clientId },
+            hiu: { id: '' },
             requester: { name: 'EasyMed', identifier: { value: 'easymed.in' } },
             hiTypes: dataTypes,
             permission: {
@@ -298,7 +293,6 @@ class ABHAService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
           patientId: healthId,
@@ -320,7 +314,6 @@ class ABHAService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
           location: location,
@@ -352,7 +345,6 @@ class ABHAService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
           primaryHealthId,
@@ -373,7 +365,6 @@ class ABHAService {
       const response = await fetch(`${this.baseUrl}/v2/family/members`, {
         method: 'GET',
         headers: {
-          'X-CM-ID': this.clientId,
           'X-HIP-ID': healthId
         }
       });
@@ -400,7 +391,6 @@ class ABHAService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
           primaryHealthId,
@@ -430,7 +420,6 @@ class ABHAService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
           patientId: patientHealthId,
@@ -457,7 +446,6 @@ class ABHAService {
       const response = await fetch(`${this.baseUrl}/v2/telemedicine/sessions`, {
         method: 'GET',
         headers: {
-          'X-CM-ID': this.clientId,
           'X-HIP-ID': healthId
         }
       });
@@ -479,7 +467,6 @@ class ABHAService {
       const response = await fetch(`${this.baseUrl}/v2/telemedicine/join/${sessionId}`, {
         method: 'POST',
         headers: {
-          'X-CM-ID': this.clientId,
         }
       });
 
@@ -515,7 +502,6 @@ class ABHAService {
       const response = await fetch(`${this.baseUrl}/v2/insurance/claims/submit`, {
         method: 'POST',
         headers: {
-          'X-CM-ID': this.clientId,
         },
         body: formData
       });
@@ -537,7 +523,6 @@ class ABHAService {
       const response = await fetch(`${this.baseUrl}/v2/insurance/claims`, {
         method: 'GET',
         headers: {
-          'X-CM-ID': this.clientId,
           'X-HIP-ID': healthId
         }
       });
@@ -565,7 +550,6 @@ class ABHAService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
           healthId,
@@ -594,7 +578,6 @@ class ABHAService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
           healthId
@@ -618,7 +601,6 @@ class ABHAService {
       const response = await fetch(`${this.baseUrl}/v2/ai/insights`, {
         method: 'GET',
         headers: {
-          'X-CM-ID': this.clientId,
           'X-HIP-ID': healthId
         }
       });
@@ -649,7 +631,6 @@ class ABHAService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
           healthId,
@@ -681,7 +662,6 @@ class ABHAService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CM-ID': this.clientId,
         },
         body: JSON.stringify({
           healthId,
