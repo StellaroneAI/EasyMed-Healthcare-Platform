@@ -7,7 +7,13 @@ import { audit } from '../_lib/audit';
 export async function POST(request: Request): Promise<Response> {
   try {
     const { phone, otp, userType = 'patient', name } = await request.json();
-    if (typeof phone !== 'string' || typeof otp !== 'string' || !/^\+[1-9]\d{7,14}$/.test(phone) || !/^\d{6}$/.test(otp)) {
+    if (
+      typeof phone !== 'string' ||
+      typeof otp !== 'string' ||
+      !/^\+[1-9]\d{7,14}$/.test(phone) ||
+      !/^\d{6}$/.test(otp) ||
+      !['patient', 'doctor', 'asha', 'admin'].includes(userType)
+    ) {
       return json({ error: 'Invalid verification request.' }, { status: 400 });
     }
     if (!await checkVerification(phone, otp)) {
