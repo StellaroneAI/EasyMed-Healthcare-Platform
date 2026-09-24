@@ -1,5 +1,5 @@
 import twilio from 'twilio';
-import { requireEnv } from './env';
+import { requireEnv } from './env.js';
 
 export async function sendVerification(phone: string): Promise<void> {
   const client = twilio(requireEnv('TWILIO_ACCOUNT_SID'), requireEnv('TWILIO_AUTH_TOKEN'));
