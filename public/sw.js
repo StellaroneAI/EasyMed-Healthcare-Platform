@@ -1,6 +1,6 @@
-const CACHE_NAME = 'easymedpro-v1.0.0';
-const STATIC_CACHE_NAME = 'easymedpro-static-v1.0.0';
-const DYNAMIC_CACHE_NAME = 'easymedpro-dynamic-v1.0.0';
+const CACHE_NAME = 'easymedpro-v1.0.1';
+const STATIC_CACHE_NAME = 'easymedpro-static-v1.0.1';
+const DYNAMIC_CACHE_NAME = 'easymedpro-dynamic-v1.0.1';
 
 // Assets to cache for offline functionality
 const STATIC_ASSETS = [
@@ -288,12 +288,8 @@ async function syncVitalSigns() {
 }
 
 async function fetchDeviceData() {
-  // Placeholder for device integration
-  return {
-    heartRate: 72,
-    bloodPressure: '120/80',
-    timestamp: Date.now()
-  };
+  // Device integrations must provide real readings; never fabricate vitals.
+  return null;
 }
 
 // Handle app updates
