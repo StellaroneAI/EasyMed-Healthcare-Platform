@@ -1,7 +1,7 @@
-import { getDb } from '../_lib/mongo';
-import { json, methodNotAllowed } from '../_lib/response';
-import { getSession } from '../_lib/session';
-import { encryptABHAToken } from '../_lib/abhaVault';
+import { getDb } from '../_lib/mongo.js';
+import { json, methodNotAllowed } from '../_lib/response.js';
+import { getSession } from '../_lib/session.js';
+import { encryptABHAToken } from '../_lib/abhaVault.js';
 
 export async function GET(request: Request): Promise<Response> {
   const session = getSession(request);
