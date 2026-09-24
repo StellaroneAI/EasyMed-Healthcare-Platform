@@ -62,10 +62,6 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
       })
       .catch(() => undefined);
 
-    const savedTeam = localStorage.getItem('easymed_admin_team');
-    if (savedTeam) {
-      try { setAdminTeam(JSON.parse(savedTeam)); } catch { localStorage.removeItem('easymed_admin_team'); }
-    }
   }, []);
 
   const isSuperAdmin = currentAdmin?.role === 'super_admin';
@@ -112,36 +108,44 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   };
 
   const addTeamMember = async (memberData: Omit<AdminUser, 'id' | 'createdAt'>): Promise<boolean> => {
-    if (!isSuperAdmin && currentAdmin?.role !== 'admin') return false;
-    const newMember: AdminUser = {
-      ...memberData,
-      id: `admin_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
-      permissions: DEFAULT_PERMISSIONS[memberData.role] || DEFAULT_PERMISSIONS.coordinator,
-      createdAt: new Date(),
-    };
-    const updatedTeam = [...adminTeam, newMember];
-    setAdminTeam(updatedTeam);
-    localStorage.setItem('easymed_admin_team', JSON.stringify(updatedTeam));
+    if (!isSuperAdmin) return false;
+    const response = await fetch('/api/admin/team', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(memberData),
+    });
+    if (!response.ok) return false;
+    const data = await response.json();
+    setAdminTeam(data.team || []);
     return true;
   };
 
   const updateTeamMember = async (id: string, updates: Partial<AdminUser>): Promise<boolean> => {
-    if (!isSuperAdmin && currentAdmin?.role !== 'admin') return false;
-    const updatedTeam = adminTeam.map(member => member.id === id ? {
-      ...member,
-      ...updates,
-      permissions: updates.role ? DEFAULT_PERMISSIONS[updates.role] || member.permissions : member.permissions,
-    } : member);
-    setAdminTeam(updatedTeam);
-    localStorage.setItem('easymed_admin_team', JSON.stringify(updatedTeam));
+    if (!isSuperAdmin) return false;
+    const response = await fetch('/api/admin/team', {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, updates }),
+    });
+    if (!response.ok) return false;
+    const data = await response.json();
+    setAdminTeam(data.team || []);
     return true;
   };
 
   const removeTeamMember = async (id: string): Promise<boolean> => {
     if (!isSuperAdmin) return false;
-    const updatedTeam = adminTeam.filter(member => member.id !== id);
-    setAdminTeam(updatedTeam);
-    localStorage.setItem('easymed_admin_team', JSON.stringify(updatedTeam));
+    const response = await fetch('/api/admin/team', {
+      method: 'DELETE',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+    if (!response.ok) return false;
+    const data = await response.json();
+    setAdminTeam(data.team || []);
     return true;
   };
 
