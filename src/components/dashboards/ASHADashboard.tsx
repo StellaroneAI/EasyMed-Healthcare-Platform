@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { clinicalDataService } from '../../services/clinicalDataService';
 import LanguageSelector from '../LanguageSelector';
 import VoiceInterface from '../VoiceInterface';
 

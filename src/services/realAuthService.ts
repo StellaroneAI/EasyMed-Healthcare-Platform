@@ -88,6 +88,43 @@ class RealAuthService {
     return false;
   }
 
+  async checkSession(): Promise<User | null> {
+    try {
+      const response = await fetch('/api/auth/me', {
+        method: 'GET',
+        credentials: 'include',
+      });
+      if (!response.ok) return null;
+      const data = await response.json();
+      if (!data.authenticated || !data.user) return null;
+      return {
+        id: data.user.userId || data.user.id,
+        name: data.user.name || 'User',
+        phone: data.user.phone || '',
+        email: data.user.email,
+        userType: data.user.userType || 'patient',
+        isVerified: true,
+        role: data.user.role,
+        createdAt: new Date(),
+        lastLogin: new Date(),
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  async logout(): Promise<boolean> {
+    try {
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      return response.ok;
+    } catch {
+      return false;
+    }
+  }
+
   getStatus() {
     return { provider: 'Secure API + Twilio Verify', clientStorage: false };
   }

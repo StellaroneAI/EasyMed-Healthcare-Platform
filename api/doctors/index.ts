@@ -3,7 +3,7 @@ import { json, methodNotAllowed } from '../_lib/response.js';
 import { requireRole } from '../_lib/authz.js';
 
 export async function GET(request: Request): Promise<Response> {
-  const session = requireRole(request, ['patient', 'admin']);
+  const session = requireRole(request, ['patient', 'doctor', 'asha', 'admin']);
   if (session instanceof Response) return session;
   try {
     const db = await getDb();
