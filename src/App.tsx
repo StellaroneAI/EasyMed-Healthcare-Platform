@@ -8,6 +8,7 @@ import TeamManagement from './components/TeamManagement';
 import SystemStatus from './components/SystemStatus';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AdminProvider, useAdmin } from './contexts/AdminContext';
+import { ABHAProvider } from './contexts/ABHAContext';
 import { LanguageKey } from './translations';
 import './App.css';
 
@@ -143,31 +144,33 @@ function AppContent() {
       )}
 
       {/* Main Content */}
-      <div className={currentUser.userType === 'admin' ? 'pt-20' : ''}>
-        {/* Render appropriate dashboard based on user type */}
-        {currentUser.userType === 'patient' && (
-          <PatientDashboard userInfo={currentUser} onLogout={handleLogout} />
-        )}
-        {currentUser.userType === 'asha' && (
-          <ASHADashboard userInfo={currentUser} onLogout={handleLogout} />
-        )}
-        {currentUser.userType === 'doctor' && (
-          <DoctorDashboard userInfo={currentUser} onLogout={handleLogout} />
-        )}
-        {currentUser.userType === 'admin' && (
-          <AdminDashboard userInfo={currentUser} onLogout={handleLogout} />
-        )}
-        
-        {/* Team Management Modal */}
-        {showTeamManagement && (
-          <TeamManagement onClose={() => setShowTeamManagement(false)} />
-        )}
-        
-        {/* System Status Notification */}
-        {showSystemStatus && (
-          <SystemStatus onClose={() => setShowSystemStatus(false)} />
-        )}
-      </div>
+      <ABHAProvider>
+        <div className={currentUser.userType === 'admin' ? 'pt-20' : ''}>
+          {/* Render appropriate dashboard based on user type */}
+          {currentUser.userType === 'patient' && (
+            <PatientDashboard userInfo={currentUser} onLogout={handleLogout} />
+          )}
+          {currentUser.userType === 'asha' && (
+            <ASHADashboard userInfo={currentUser} onLogout={handleLogout} />
+          )}
+          {currentUser.userType === 'doctor' && (
+            <DoctorDashboard userInfo={currentUser} onLogout={handleLogout} />
+          )}
+          {currentUser.userType === 'admin' && (
+            <AdminDashboard userInfo={currentUser} onLogout={handleLogout} />
+          )}
+          
+          {/* Team Management Modal */}
+          {showTeamManagement && (
+            <TeamManagement onClose={() => setShowTeamManagement(false)} />
+          )}
+          
+          {/* System Status Notification */}
+          {showSystemStatus && (
+            <SystemStatus onClose={() => setShowSystemStatus(false)} />
+          )}
+        </div>
+      </ABHAProvider>
     </div>
   );
 }
