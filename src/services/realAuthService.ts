@@ -13,6 +13,7 @@ export interface User {
   specialty?: string;
   village?: string;
   organization?: string;
+  role?: string;
   createdAt: Date;
   lastLogin: Date;
 }

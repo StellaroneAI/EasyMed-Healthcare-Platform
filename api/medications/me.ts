@@ -71,7 +71,7 @@ export async function PATCH(request: Request): Promise<Response> {
       if (typeof b[k] === 'string') updates[k] = clean(b[k], k === 'instructions' ? 1000 : 160);
     if (typeof b.active === 'boolean') updates.active = b.active;
     if (Object.keys(updates).length === 1) return json({ error: 'No valid changes.' }, { status: 400 });
-    await db.collection('medications').updateOne({ id: b.id }, { : updates });
+    await db.collection('medications').updateOne({ id: b.id }, { $set: updates });
     await audit({ actorId: a.userId, actorRole: a.userType, action: 'medications.update', resource: b.id, outcome: 'success' });
     return json({ success: true });
   } catch {
