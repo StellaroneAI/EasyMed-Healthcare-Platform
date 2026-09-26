@@ -1,7 +1,7 @@
 import { json, methodNotAllowed } from '../_lib/response.js';
 import { getDb } from '../_lib/mongo.js';
 import { requireRole } from '../_lib/authz.js';
-import { audit } from '../_lib/audit.js';
+import { audit, auditPhiRead } from '../_lib/audit.js';
 
 export async function GET(request: Request): Promise<Response> {
   const session = requireRole(request, ['patient', 'admin']);
@@ -14,7 +14,13 @@ export async function GET(request: Request): Promise<Response> {
       db.collection('vital_readings').find({ patientId }).sort({ timestamp: -1 }).limit(100).toArray(),
       db.collection('monitoring_devices').find({ patientId }).sort({ updatedAt: -1 }).limit(50).toArray(),
     ]);
-    await audit({ actorId: session.userId, actorRole: session.userType, action: 'vitals.read', resource: patientId, outcome: 'success' });
+    await auditPhiRead({
+      actorId: session.userId,
+      actorRole: session.userType,
+      resourceType: 'vitals',
+      patientId,
+      recordCount: readings.length,
+    });
     return json({ readings, devices });
   } catch (error) {
     console.error('vitals GET failed', error);
@@ -42,7 +48,7 @@ export async function POST(request: Request): Promise<Response> {
     if (typeof body.deviceId === 'string') {
       await db.collection('monitoring_devices').updateOne(
         { patientId: session.userId, id: body.deviceId },
-        { $set: { lastSync: now, updatedAt: now } },
+        { : { lastSync: now, updatedAt: now } },
       );
     }
     const readings = await db.collection('vital_readings').find({ patientId: session.userId }).sort({ timestamp: -1 }).limit(100).toArray();
