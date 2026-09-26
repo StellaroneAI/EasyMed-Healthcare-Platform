@@ -33,7 +33,7 @@ export async function auditPhiRead(params: {
   return audit({
     actorId: params.actorId,
     actorRole: params.actorRole,
-    action: ,
+    action: `${params.resourceType}.read`,
     resource: params.resourceType,
     resourceId: params.patientId,
     outcome: 'success',

@@ -48,7 +48,7 @@ export async function POST(request: Request): Promise<Response> {
     if (typeof body.deviceId === 'string') {
       await db.collection('monitoring_devices').updateOne(
         { patientId: session.userId, id: body.deviceId },
-        { : { lastSync: now, updatedAt: now } },
+        { $set: { lastSync: now, updatedAt: now } },
       );
     }
     const readings = await db.collection('vital_readings').find({ patientId: session.userId }).sort({ timestamp: -1 }).limit(100).toArray();
