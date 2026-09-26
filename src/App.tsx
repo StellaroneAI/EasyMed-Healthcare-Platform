@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { authService } from './services/realAuthService';
 import PatientDashboard from './pages/PatientDashboard';
 import ASHADashboard from './components/dashboards/ASHADashboard';
 import DoctorDashboard from './components/dashboards/DoctorDashboard';
@@ -26,6 +27,33 @@ function AppContent() {
   const { currentAdmin, logoutAdmin, loginAdmin } = useAdmin();
   const { currentLanguage, setLanguage } = useLanguage();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
+
+  // Restore authenticated session on mount across Patient, Doctor, ASHA, and Admin
+  useEffect(() => {
+    let mounted = true;
+    async function restoreSession() {
+      try {
+        const sessionUser = await authService.checkSession();
+        if (mounted && sessionUser) {
+          setCurrentUser({
+            userType: sessionUser.userType,
+            name: sessionUser.name,
+            phone: sessionUser.phone,
+            email: sessionUser.email,
+            role: sessionUser.role,
+          });
+          setIsLoggedIn(true);
+        }
+      } catch (err) {
+        console.error('Session restoration failed:', err);
+      } finally {
+        if (mounted) setIsCheckingSession(false);
+      }
+    }
+    restoreSession();
+    return () => { mounted = false; };
+  }, []);
 
   const languageOptions = [
     { code: 'english', name: 'English', flag: '🇺🇸' },
@@ -69,7 +97,12 @@ function AppContent() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+    } catch (e) {
+      console.warn('Backend logout failed', e);
+    }
     setCurrentUser(null);
     setIsLoggedIn(false);
     setShowTeamManagement(false);
@@ -77,6 +110,17 @@ function AppContent() {
       logoutAdmin();
     }
   };
+
+  if (isCheckingSession) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">Verifying EasyMed session...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Don't force early return - let the component render the main content
   if (!isLoggedIn || !currentUser) {
