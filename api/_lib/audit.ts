@@ -22,3 +22,24 @@ export async function audit(event: AuditEvent): Promise<void> {
     console.error('Audit write failed');
   }
 }
+
+export async function auditPhiRead(params: {
+  actorId: string;
+  actorRole: string;
+  resourceType: 'vitals' | 'medications' | 'medical_records' | 'patient_profile';
+  patientId: string;
+  recordCount?: number;
+}): Promise<void> {
+  return audit({
+    actorId: params.actorId,
+    actorRole: params.actorRole,
+    action: ,
+    resource: params.resourceType,
+    resourceId: params.patientId,
+    outcome: 'success',
+    metadata: {
+      patientId: params.patientId,
+      recordCount: params.recordCount ?? 0,
+    },
+  });
+}
