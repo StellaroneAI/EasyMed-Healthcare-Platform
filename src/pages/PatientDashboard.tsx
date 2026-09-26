@@ -11,6 +11,7 @@ import FloatingNavigation from '../components/FloatingNavigation';
 import AIChatAssistant from '../components/AIChatAssistant';
 import MovableFloatingButton from '../components/MovableFloatingButton';
 import { useLanguage } from '../contexts/LanguageContext';
+import { clinicalDataService, VitalRecord, MedicationRecord, Appointment } from '../services/clinicalDataService';
 
 interface PatientDashboardProps { userInfo?: { name?: string; phone?: string; email?: string }; onLogout?: () => void; }
 
@@ -27,6 +28,48 @@ export default function PatientDashboard({ userInfo, onLogout }: PatientDashboar
   // State for managing different features
   const [showAIChat, setShowAIChat] = useState(false);
   const [chatType, setChatType] = useState<'SYMPTOM_CHECK' | 'GENERAL_HEALTH' | 'MEDICATION' | 'EMERGENCY'>('SYMPTOM_CHECK');
+  const [vitals, setVitals] = useState<VitalRecord[]>([]);
+  const [medications, setMedications] = useState<MedicationRecord[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [loadingClinical, setLoadingClinical] = useState({ vitals: false, meds: false, appts: false });
+  const [clinicalError, setClinicalError] = useState<{ vitals?: string; meds?: string; appts?: string }>({});
+
+  const loadVitals = async () => {
+    setLoadingClinical(prev => ({ ...prev, vitals: true }));
+    setClinicalError(prev => ({ ...prev, vitals: undefined }));
+    const res = await clinicalDataService.getVitals();
+    if (res.error) setClinicalError(prev => ({ ...prev, vitals: res.error }));
+    else setVitals(res.vitals || []);
+    setLoadingClinical(prev => ({ ...prev, vitals: false }));
+  };
+
+  const loadMedications = async () => {
+    setLoadingClinical(prev => ({ ...prev, meds: true }));
+    setClinicalError(prev => ({ ...prev, meds: undefined }));
+    const res = await clinicalDataService.getMedications();
+    if (res.error) setClinicalError(prev => ({ ...prev, meds: res.error }));
+    else setMedications(res.medications || []);
+    setLoadingClinical(prev => ({ ...prev, meds: false }));
+  };
+
+  const loadAppointments = async () => {
+    setLoadingClinical(prev => ({ ...prev, appts: true }));
+    setClinicalError(prev => ({ ...prev, appts: undefined }));
+    const res = await clinicalDataService.getAppointments();
+    if (res.error) setClinicalError(prev => ({ ...prev, appts: res.error }));
+    else setAppointments(res.appointments || []);
+    setLoadingClinical(prev => ({ ...prev, appts: false }));
+  };
+
+  useEffect(() => {
+    loadVitals();
+    loadMedications();
+    loadAppointments();
+  }, []);
+
+  const latestVital = vitals[0];
+  const nextAppointment = appointments.find(a => a.status === 'scheduled' || a.status === 'confirmed');
+
   const [activeSection, setActiveSection] = useState<string>('dashboard');
   const languages = {
     english: 'English',
@@ -181,47 +224,119 @@ export default function PatientDashboard({ userInfo, onLogout }: PatientDashboar
         {/* Voice Assistant */}
         <VoiceAssistant />
 
-        {/* Health Status Cards - Mobile Grid */}
+        {/* Health Status Cards - Mobile Grid with Live Persistence, Error & Retry */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          {/* Heart Rate Card */}
           <div className="bg-white/70 backdrop-blur-sm p-4 sm:p-6 rounded-xl border border-white/20 touch-manipulation">
             <div className="flex items-center justify-between">
               <div className="min-w-0 flex-1">
                 <h3 className="text-xs sm:text-sm text-gray-600 truncate">{t('heartRate')}</h3>
-                <p className="text-xl sm:text-2xl font-bold text-gray-500">—</p>
-                <p className="text-xs text-gray-500">Not recorded</p>
+                {loadingClinical.vitals ? (
+                  <p className="text-sm text-gray-400 animate-pulse">Loading...</p>
+                ) : clinicalError.vitals ? (
+                  <div>
+                    <p className="text-xs text-red-500">Failed to load</p>
+                    <button onClick={loadVitals} className="text-xs text-blue-600 underline font-medium">Retry</button>
+                  </div>
+                ) : latestVital?.heartRate ? (
+                  <>
+                    <p className="text-xl sm:text-2xl font-bold text-gray-800">{latestVital.heartRate} bpm</p>
+                    <p className="text-xs text-green-600">Normal</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-xl sm:text-2xl font-bold text-gray-400">—</p>
+                    <p className="text-xs text-gray-400">Not recorded</p>
+                  </>
+                )}
               </div>
               <div className="text-red-500 text-lg sm:text-xl ml-2">❤️</div>
             </div>
           </div>
 
+          {/* Blood Pressure Card */}
           <div className="bg-white/70 backdrop-blur-sm p-4 sm:p-6 rounded-xl border border-white/20 touch-manipulation">
             <div className="flex items-center justify-between">
               <div className="min-w-0 flex-1">
                 <h3 className="text-xs sm:text-sm text-gray-600 truncate">{t('bloodPressure')}</h3>
-                <p className="text-xl sm:text-2xl font-bold text-gray-500">—</p>
-                <p className="text-xs text-gray-500">Not recorded</p>
+                {loadingClinical.vitals ? (
+                  <p className="text-sm text-gray-400 animate-pulse">Loading...</p>
+                ) : clinicalError.vitals ? (
+                  <div>
+                    <p className="text-xs text-red-500">Failed to load</p>
+                    <button onClick={loadVitals} className="text-xs text-blue-600 underline font-medium">Retry</button>
+                  </div>
+                ) : latestVital?.bloodPressure ? (
+                  <>
+                    <p className="text-xl sm:text-2xl font-bold text-gray-800">
+                      {latestVital.bloodPressure.systolic}/{latestVital.bloodPressure.diastolic}
+                    </p>
+                    <p className="text-xs text-green-600">mmHg</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-xl sm:text-2xl font-bold text-gray-400">—</p>
+                    <p className="text-xs text-gray-400">Not recorded</p>
+                  </>
+                )}
               </div>
               <div className="text-blue-500 text-lg sm:text-xl ml-2">🩺</div>
             </div>
           </div>
 
+          {/* Next Appointment Card */}
           <div className="bg-white/70 backdrop-blur-sm p-4 sm:p-6 rounded-xl border border-white/20 touch-manipulation">
             <div className="flex items-center justify-between">
               <div className="min-w-0 flex-1">
                 <h3 className="text-xs sm:text-sm text-gray-600 truncate">{t('nextAppointment')}</h3>
-                <p className="text-sm sm:text-lg font-bold text-gray-500">—</p>
-                <p className="text-xs text-gray-500">No appointment scheduled</p>
+                {loadingClinical.appts ? (
+                  <p className="text-sm text-gray-400 animate-pulse">Loading...</p>
+                ) : clinicalError.appts ? (
+                  <div>
+                    <p className="text-xs text-red-500">Failed to load</p>
+                    <button onClick={loadAppointments} className="text-xs text-blue-600 underline font-medium">Retry</button>
+                  </div>
+                ) : nextAppointment ? (
+                  <>
+                    <p className="text-sm sm:text-base font-bold text-gray-800">
+                      {new Date(nextAppointment.scheduledTime).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                    </p>
+                    <p className="text-xs text-purple-600 truncate">{nextAppointment.type || 'Consultation'}</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm sm:text-lg font-bold text-gray-400">—</p>
+                    <p className="text-xs text-gray-400">No appointment scheduled</p>
+                  </>
+                )}
               </div>
               <div className="text-purple-500 text-lg sm:text-xl ml-2">📅</div>
             </div>
           </div>
 
+          {/* Medications Card */}
           <div className="bg-white/70 backdrop-blur-sm p-4 sm:p-6 rounded-xl border border-white/20 touch-manipulation">
             <div className="flex items-center justify-between">
               <div className="min-w-0 flex-1">
                 <h3 className="text-xs sm:text-sm text-gray-600 truncate">{t('medications')}</h3>
-                <p className="text-xl sm:text-2xl font-bold text-gray-500">—</p>
-                <p className="text-xs text-gray-500">No medication data</p>
+                {loadingClinical.meds ? (
+                  <p className="text-sm text-gray-400 animate-pulse">Loading...</p>
+                ) : clinicalError.meds ? (
+                  <div>
+                    <p className="text-xs text-red-500">Failed to load</p>
+                    <button onClick={loadMedications} className="text-xs text-blue-600 underline font-medium">Retry</button>
+                  </div>
+                ) : medications.length > 0 ? (
+                  <>
+                    <p className="text-xl sm:text-2xl font-bold text-gray-800">{medications.length} Active</p>
+                    <p className="text-xs text-orange-600 truncate">{medications[0].name}</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-xl sm:text-2xl font-bold text-gray-400">—</p>
+                    <p className="text-xs text-gray-400">No active medications</p>
+                  </>
+                )}
               </div>
               <div className="text-orange-500 text-lg sm:text-xl ml-2">💊</div>
             </div>
